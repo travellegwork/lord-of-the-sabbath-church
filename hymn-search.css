@@ -7,4 +7,8 @@
 .search-results-heading{max-width:1100px;margin:0 auto 1rem;font-weight:700;color:#68501b}
 .no-hymns{grid-column:1/-1;text-align:center;background:var(--cream);padding:3rem}
 .hymn-card strong u{text-decoration-thickness:1px;text-underline-offset:5px}
+.hymn-scripture-preview{margin:.9rem 0 1.2rem;padding:.9rem 1rem;background:#fff;border-left:3px solid var(--gold);font:italic .86rem/1.65 var(--serif);color:#39475a}
+.hymn-full-scripture{margin:1.5rem 0 2rem;padding:1.3rem 1.5rem;background:var(--cream);border-left:4px solid var(--gold)}
+.hymn-full-scripture blockquote{font:1.05rem/1.75 var(--serif);margin:.8rem 0}
+.hymn-full-scripture blockquote+blockquote{border-top:1px solid var(--line);padding-top:.8rem}
 @media(max-width:760px){.hymn-search-panel .library-tools{grid-template-columns:1fr}.hymn-search-actions .btn{width:100%}}
