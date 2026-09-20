@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Lord of the Sabbath Church — read and study the King James Bible, learn about the seventh-day Sabbath and the Feasts of the LORD, and grow in faith in the Lord Jesus Christ.">
+  <meta name="theme-color" content="#071426">
+  <title>Lord of the Sabbath Church</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <header class="site-header">
+    <a class="brand" href="#home" aria-label="Lord of the Sabbath Church home">
+      <span class="brand-mark" aria-hidden="true">LS</span>
+      <span><strong>Lord of the Sabbath</strong><small>CHURCH</small></span>
+    </a>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
+    <nav id="site-nav" class="site-nav" aria-label="Main navigation">
+      <a href="#home">Home</a>
+      <a href="#bible">Read the Bible</a>
+      <a href="#commandments">Ten Commandments</a>
+      <a href="#sabbath">The Sabbath</a>
+      <a href="#feasts">Feasts of the LORD</a>
+      <a href="#salvation">Bible Way to Heaven</a>
+      <a href="#devotionals">Devotionals</a>
+      <a href="#about">About Us</a>
+      <a href="#give">Give</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section id="home" class="page active" data-title="Lord of the Sabbath Church">
+      <section class="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+          <p class="eyebrow">Welcome to</p>
+          <h1>Lord of the<br><em>Sabbath</em> Church</h1>
+          <p class="hero-lead">A place to read, study, meditate upon and obey the Word of God—exalting the Lord Jesus Christ in all things.</p>
+          <div class="hero-actions">
+            <a class="button gold" href="#bible">Read the KJV Bible</a>
+            <a class="button ghost" href="#salvation">Know the Way to Heaven</a>
+          </div>
+        </div>
+        <p class="hero-verse">“For the Son of man is Lord even of the sabbath day.” <strong>Matthew 12:8 KJV</strong></p>
+      </section>
+
+      <section class="daily-section section-pad">
+        <div class="section-heading centered">
+          <p class="eyebrow dark">Daily bread</p>
+          <h2>Verse of the Day</h2>
+          <p id="verse-date" class="date-line"></p>
+        </div>
+        <div class="daily-grid">
+          <article class="verse-card scripture-card">
+            <div class="card-label"><span>English</span><strong>King James Version</strong></div>
+            <blockquote id="daily-kjv">Loading today’s Scripture…</blockquote>
+            <cite id="daily-reference"></cite>
+          </article>
+          <article class="verse-card translation-card">
+            <label for="daily-language">Translation</label>
+            <select id="daily-language" aria-label="Choose a translation language"></select>
+            <div class="translation-message">
+              <span aria-hidden="true">文 · A · א</span>
+              <p id="daily-translation">Choose a language. The English KJV always remains beside the selected translation.</p>
+            </div>
+          </article>
+        </div>
+        <div class="centered action-row">
+          <button id="read-daily-chapter" class="button navy" type="button">Read the Whole Chapter</button>
+        </div>
+      </section>
+
+      <section class="motto-section">
+        <div class="ornament" aria-hidden="true">✦</div>
+        <p class="eyebrow">Our permanent motto</p>
+        <blockquote>“This book of the law shall not depart out of thy mouth; but thou shalt meditate therein day and night, that thou mayest observe to do according to all that is written therein: for then thou shalt make thy way prosperous, and then thou shalt have good success.”</blockquote>
+        <cite>Joshua 1:8 KJV</cite>
+      </section>
+
+      <section class="soap-section section-pad">
+        <div class="section-heading centered">
+          <p class="eyebrow dark">Study · Observe · Apply · Pray</p>
+          <h2>My Daily SOAP</h2>
+          <p>Pause over today’s Scripture. Use the short guide, then write what the LORD is teaching you.</p>
+        </div>
+        <form id="soap-form" class="soap-layout">
+          <aside class="soap-guide">
+            <div><span>S</span><h3>Scripture</h3><p id="soap-scripture">Read the verse slowly and prayerfully.</p></div>
+            <div><span>O</span><h3>Observation</h3><p>What does the verse reveal about God, His will or the condition of man?</p></div>
+            <div><span>A</span><h3>Application</h3><p>What truth should I believe, obey or put into practice today?</p></div>
+            <div><span>P</span><h3>Prayer</h3><p>Speak honestly to the LORD about what He has shown you.</p></div>
+          </aside>
+          <div class="soap-fields">
+            <label>My Observation<textarea id="soap-observation" rows="4" placeholder="Write your personal observation…"></textarea></label>
+            <label>My Application<textarea id="soap-application" rows="4" placeholder="Write how you will apply this truth…"></textarea></label>
+            <label>My Prayer<textarea id="soap-prayer" rows="4" placeholder="Write your prayer to the LORD…"></textarea></label>
+            <p id="soap-status" class="form-status" role="status"></p>
+            <div class="soap-actions">
+              <button id="email-soap" class="button navy" type="button">Email My SOAP — FREE</button>
+              <button id="save-soap" class="button outline" type="button">Save My SOAP — US$1/month</button>
+              <a class="button text-button" href="#give">Donate to Support This Ministry</a>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <section class="pillars section-pad">
+        <article><span>01</span><h3>Christ First</h3><p>Jesus Christ is Lord, Saviour and the centre of every doctrine, devotion and gathering.</p><a href="#salvation">The way to heaven →</a></article>
+        <article><span>02</span><h3>The Word of God</h3><p>We read and teach from the Authorized King James Bible as our English authority.</p><a href="#bible">Read the Bible →</a></article>
+        <article><span>03</span><h3>Holy Time</h3><p>We remember the seventh-day Sabbath and the appointed Feasts of the LORD.</p><a href="#sabbath">Learn about the Sabbath →</a></article>
+      </section>
+    </section>
+
+    <section id="bible" class="page inner-page" data-title="Read the Bible | Lord of the Sabbath Church">
+      <header class="page-banner"><p class="eyebrow">The Authorized Version</p><h1>Read the King James Bible</h1><p>Choose any book and chapter. The KJV remains the authoritative English text.</p></header>
+      <section class="reader-wrap section-pad">
+        <div class="reader-controls">
+          <label>Book<select id="book-select"></select></label>
+          <label>Chapter<select id="chapter-select"></select></label>
+          <label>Side-by-side language<select id="reader-language"></select></label>
+        </div>
+        <div class="reader-grid">
+          <article class="bible-panel">
+            <div class="panel-heading"><span>English</span><strong>King James Version</strong></div>
+            <h2 id="chapter-title">Genesis 1</h2>
+            <div id="chapter-verses" class="chapter-text" aria-live="polite"></div>
+          </article>
+          <article class="bible-panel translation-panel">
+            <div class="panel-heading"><span id="translation-name">Translation</span><strong>Parallel reading</strong></div>
+            <div class="translation-empty"><span aria-hidden="true">文 · A · א</span><h2>Translation language selected</h2><p id="translation-note">Select a language to prepare the parallel reading panel.</p><p class="small">The KJV text on the left is never replaced.</p></div>
+          </article>
+        </div>
+        <div class="chapter-nav">
+          <button id="previous-chapter" class="button outline" type="button">← Previous Chapter</button>
+          <button id="next-chapter" class="button navy" type="button">Next Chapter →</button>
+        </div>
+      </section>
+    </section>
+
+    <section id="commandments" class="page inner-page" data-title="The Ten Commandments | Lord of the Sabbath Church">
+      <header class="page-banner commandments-banner"><p class="eyebrow">Exodus 20 KJV</p><h1>The Ten Commandments of God</h1><p>Spoken by God and written upon tables of stone—revealing His holiness and teaching us our duty toward God and our neighbour.</p></header>
+      <section class="commandments-wrap section-pad">
+        <div class="intro-block"><blockquote>“And God spake all these words, saying, I am the LORD thy God…” <cite>Exodus 20:1–2 KJV</cite></blockquote></div>
+        <div class="commandments-grid">
+          <article><span>I</span><div><h2>No other gods</h2><blockquote>“Thou shalt have no other gods before me.”</blockquote><cite>Exodus 20:3 KJV</cite></div></article>
+          <article><span>II</span><div><h2>No graven images</h2><blockquote>“Thou shalt not make unto thee any graven image… Thou shalt not bow down thyself to them, nor serve them…”</blockquote><cite>Exodus 20:4–5 KJV</cite></div></article>
+          <article><span>III</span><div><h2>Honour God’s name</h2><blockquote>“Thou shalt not take the name of the LORD thy God in vain…”</blockquote><cite>Exodus 20:7 KJV</cite></div></article>
+          <article class="sabbath-command"><span>IV</span><div><h2>Remember the Sabbath</h2><blockquote>“Remember the sabbath day, to keep it holy. Six days shalt thou labour, and do all thy work: But the seventh day is the sabbath of the LORD thy God…”</blockquote><cite>Exodus 20:8–10 KJV</cite></div></article>
+          <article><span>V</span><div><h2>Honour father and mother</h2><blockquote>“Honour thy father and thy mother: that thy days may be long upon the land which the LORD thy God giveth thee.”</blockquote><cite>Exodus 20:12 KJV</cite></div></article>
+          <article><span>VI</span><div><h2>Do not kill</h2><blockquote>“Thou shalt not kill.”</blockquote><cite>Exodus 20:13 KJV</cite></div></article>
+          <article><span>VII</span><div><h2>Do not commit adultery</h2><blockquote>“Thou shalt not commit adultery.”</blockquote><cite>Exodus 20:14 KJV</cite></div></article>
+          <article><span>VIII</span><div><h2>Do not steal</h2><blockquote>“Thou shalt not steal.”</blockquote><cite>Exodus 20:15 KJV</cite></div></article>
+          <article><span>IX</span><div><h2>Do not bear false witness</h2><blockquote>“Thou shalt not bear false witness against thy neighbour.”</blockquote><cite>Exodus 20:16 KJV</cite></div></article>
+          <article><span>X</span><div><h2>Do not covet</h2><blockquote>“Thou shalt not covet thy neighbour's house, thou shalt not covet thy neighbour's wife… nor any thing that is thy neighbour's.”</blockquote><cite>Exodus 20:17 KJV</cite></div></article>
+        </div>
+        <div class="centered commandments-action"><a class="button navy" href="#bible" data-ref="Exodus 20">Read All of Exodus 20 KJV</a></div>
+      </section>
+    </section>
+
+    <section id="sabbath" class="page inner-page" data-title="The Sabbath | Lord of the Sabbath Church">
+      <header class="page-banner"><p class="eyebrow">Remember the Sabbath day</p><h1>The Seventh-Day Sabbath</h1><p>A holy appointment with our Creator—resting in His finished work and delighting in His Word.</p></header>
+      <section class="article-layout section-pad">
+        <article class="prose">
+          <p class="lead">The Sabbath is a temple in time: a weekly invitation to cease from ordinary labour and turn our hearts toward worship, prayer, Scripture and communion with God.</p>
+          <h2>Created and blessed by God</h2><blockquote>“And God blessed the seventh day, and sanctified it…” <cite>Genesis 2:3 KJV</cite></blockquote>
+          <p>The Sabbath began at creation. God rested on the seventh day, blessed it and set it apart. The fourth commandment calls His people to remember that holy time.</p>
+          <h2>Jesus Christ is Lord of the Sabbath</h2><blockquote>“Therefore the Son of man is Lord also of the sabbath.” <cite>Mark 2:28 KJV</cite></blockquote>
+          <p>The Sabbath points us to Christ, not away from Him. He taught that the Sabbath was made for man and showed mercy, healing and goodness upon it.</p>
+          <h2>Rest is not the way of salvation</h2>
+          <p>Keeping the Sabbath cannot purchase forgiveness or eternal life. We are saved by grace through faith in the Lord Jesus Christ. Obedience follows salvation; it does not earn it.</p>
+        </article>
+        <aside class="reference-card"><p class="eyebrow dark">Read and consider</p><h3>Key KJV passages</h3><ul><li>Genesis 2:1–3</li><li>Exodus 20:8–11</li><li>Isaiah 58:13–14</li><li>Matthew 12:1–13</li><li>Mark 2:27–28</li><li>Hebrews 4:1–11</li></ul><a class="button navy" href="#bible" data-ref="Mark 2">Read Mark 2</a></aside>
+      </section>
+    </section>
+
+    <section id="feasts" class="page inner-page" data-title="Feasts of the LORD | Lord of the Sabbath Church">
+      <header class="page-banner"><p class="eyebrow">Leviticus 23</p><h1>The Feasts of the LORD</h1><p>God’s appointed times, proclaimed to be holy convocations.</p></header>
+      <section class="section-pad">
+        <div class="intro-block"><blockquote>“Concerning the feasts of the LORD, which ye shall proclaim to be holy convocations, even these are my feasts.” <cite>Leviticus 23:2 KJV</cite></blockquote><p>The weekly Sabbath and the annual appointed times belong to the LORD. Scripture specifies which days are holy convocations and days of rest.</p></div>
+        <div class="feast-grid">
+          <article><span>01</span><h2>Passover</h2><p>Remembering deliverance through the blood of the lamb, fulfilled in Christ our passover.</p><cite>Leviticus 23:5 · 1 Corinthians 5:7</cite></article>
+          <article><span>02</span><h2>Unleavened Bread</h2><p>Seven days remembering the haste of deliverance and the call to sincerity and truth.</p><cite>Leviticus 23:6–8</cite></article>
+          <article><span>03</span><h2>Firstfruits</h2><p>The first sheaf offered before the LORD, pointing to Christ risen from the dead.</p><cite>Leviticus 23:9–14 · 1 Corinthians 15:20</cite></article>
+          <article><span>04</span><h2>Pentecost</h2><p>The Feast of Weeks, counted fifty days, with a proclaimed holy convocation.</p><cite>Leviticus 23:15–21 · Acts 2</cite></article>
+          <article><span>05</span><h2>Trumpets</h2><p>A memorial of blowing of trumpets, an holy convocation and a sabbath of rest.</p><cite>Leviticus 23:23–25</cite></article>
+          <article><span>06</span><h2>Day of Atonement</h2><p>A solemn day of affliction, holy convocation and complete sabbath of rest.</p><cite>Leviticus 23:26–32</cite></article>
+          <article><span>07</span><h2>Tabernacles</h2><p>Seven days of rejoicing before the LORD, beginning with a holy convocation.</p><cite>Leviticus 23:33–43</cite></article>
+          <article><span>08</span><h2>The Eighth Day</h2><p>A distinct holy convocation following the seven days of Tabernacles; a solemn assembly.</p><cite>Leviticus 23:36, 39</cite></article>
+        </div>
+      </section>
+    </section>
+
+    <section id="salvation" class="page inner-page" data-title="Bible Way to Heaven | Lord of the Sabbath Church">
+      <header class="page-banner salvation-banner"><p class="eyebrow">The Gospel of Jesus Christ</p><h1>The Bible Way to Heaven</h1><p>Not by our works, but by God’s grace through faith in the Lord Jesus Christ.</p></header>
+      <section class="salvation-path section-pad">
+        <article><span>1</span><div><h2>All have sinned</h2><p>Sin is the transgression of God’s law. Every person stands guilty before a holy God.</p><blockquote>“For all have sinned, and come short of the glory of God.” <cite>Romans 3:23 KJV</cite></blockquote></div></article>
+        <article><span>2</span><div><h2>Sin brings death</h2><p>We cannot erase our guilt through religion, good works, feast-keeping or Sabbath observance.</p><blockquote>“For the wages of sin is death…” <cite>Romans 6:23 KJV</cite></blockquote></div></article>
+        <article><span>3</span><div><h2>Christ died and rose again</h2><p>Jesus bore our sins, was buried and rose bodily from the dead on the third day.</p><blockquote>“Christ died for our sins according to the scriptures… and that he rose again the third day…” <cite>1 Corinthians 15:3–4 KJV</cite></blockquote></div></article>
+        <article><span>4</span><div><h2>Repent and believe</h2><p>Turn to God, confess and forsake your sin, and trust wholly in the Lord Jesus Christ.</p><blockquote>“Believe on the Lord Jesus Christ, and thou shalt be saved…” <cite>Acts 16:31 KJV</cite></blockquote></div></article>
+        <article><span>5</span><div><h2>Call upon the Lord</h2><p>Salvation is God’s gift. Come to Christ sincerely; no scripted words can substitute for true faith.</p><blockquote>“For whosoever shall call upon the name of the Lord shall be saved.” <cite>Romans 10:13 KJV</cite></blockquote></div></article>
+        <div class="prayer-card"><p class="eyebrow">A prayer of faith</p><h2>Come honestly to the Lord Jesus</h2><p>Lord Jesus Christ, I confess that I am a sinner and cannot save myself. I believe that You died for my sins, were buried, and rose again. I turn from my sin and place my faith in You alone. Forgive me, save me, and make me Yours. Help me to follow You according to Your Word. Amen.</p><p class="small">Prayer does not save by its wording. The Lord Jesus Christ saves those who truly believe on Him.</p></div>
+      </section>
+    </section>
+
+    <section id="devotionals" class="page inner-page" data-title="Devotionals | Lord of the Sabbath Church">
+      <header class="page-banner"><p class="eyebrow">Meditate therein day and night</p><h1>Devotionals</h1><p>Short KJV-centred studies for the Sabbath, feast days and everyday discipleship.</p></header>
+      <section class="devotional-grid section-pad">
+        <article><p class="eyebrow dark">Sabbath devotional</p><h2>The Lord of Rest</h2><p>Jesus does not merely command rest—He calls the weary to come unto Him.</p><cite>Matthew 11:28–30</cite><a href="#bible" data-ref="Matthew 11">Read the chapter →</a></article>
+        <article><p class="eyebrow dark">Feast devotional</p><h2>A Memorial of Blowing</h2><p>Trumpets awaken, assemble and announce. What does God call His people to remember?</p><cite>Leviticus 23:23–25</cite><a href="#bible" data-ref="Leviticus 23">Read the chapter →</a></article>
+        <article><p class="eyebrow dark">Daily discipleship</p><h2>Day and Night</h2><p>Joshua 1:8 calls for a life saturated with God’s Word—not two verses, but continuing meditation and obedience.</p><cite>Joshua 1:8</cite><a href="#bible" data-ref="Joshua 1">Read the chapter →</a></article>
+      </section>
+    </section>
+
+    <section id="about" class="page inner-page" data-title="About Us | Lord of the Sabbath Church">
+      <header class="page-banner"><p class="eyebrow">Who we are</p><h1>About Lord of the Sabbath Church</h1><p>A KJV-centred Christian fellowship seeking to honour the Lord Jesus Christ through faith, truth and obedience.</p></header>
+      <section class="article-layout section-pad">
+        <article class="prose"><h2>Our purpose</h2><p>We exist to proclaim the gospel of the Lord Jesus Christ, teach the Word of God, make disciples and encourage believers to walk faithfully with Him.</p><h2>What guides us</h2><p>We receive the Authorized King James Bible as our English authority for doctrine and practice. We remember the seventh-day Sabbath, study the appointed Feasts of the LORD and gather around Scripture, worship and prayer.</p><h2>Christ at the centre</h2><p>Our hope is not in religious observance. Forgiveness and eternal life are found in the Lord Jesus Christ alone. We desire that every teaching and practice lead people nearer to Him.</p></article>
+        <aside class="belief-list"><h2>Our foundations</h2><ul><li><strong>The Scriptures</strong><span>The Word of God is true and authoritative.</span></li><li><strong>The Lord Jesus Christ</strong><span>Crucified, buried, risen and coming again.</span></li><li><strong>Salvation by grace</strong><span>Received through faith, not earned by works.</span></li><li><strong>Holy living</strong><span>Obedience as the fruit of a redeemed life.</span></li><li><strong>Prayer and fellowship</strong><span>Growing together in Christ and His Word.</span></li></ul></aside>
+      </section>
+    </section>
+
+    <section id="give" class="page inner-page" data-title="Give | Lord of the Sabbath Church">
+      <header class="page-banner"><p class="eyebrow">Freely ye have received, freely give</p><h1>Support the Ministry</h1><p>Your generosity can help keep Bible teaching freely available and subsidise personal SOAP journal storage.</p></header>
+      <section class="give-wrap section-pad"><div class="give-card"><div class="ornament" aria-hidden="true">✦</div><h2>Give willingly and prayerfully</h2><p>Giving is voluntary. No gift purchases God’s favour, salvation or spiritual standing. When a secure donation provider is connected, this page will provide the official giving method.</p><button id="donate-button" class="button gold" type="button">Donate — Coming Soon</button><p class="small">Payment processing is not active yet. Please do not send financial information through this website.</p></div><blockquote>“Every man according as he purposeth in his heart, so let him give; not grudgingly, or of necessity: for God loveth a cheerful giver.” <cite>2 Corinthians 9:7 KJV</cite></blockquote></section>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-brand"><span class="brand-mark">LS</span><div><strong>Lord of the Sabbath Church</strong><p>Jesus Christ is Lord.</p></div></div>
+    <div><h2>Explore</h2><a href="#bible">Read the Bible</a><a href="#commandments">Ten Commandments</a><a href="#sabbath">The Sabbath</a><a href="#feasts">Feasts of the LORD</a><a href="#salvation">Bible Way to Heaven</a></div>
+    <div><h2>Our motto</h2><p>“Meditate therein day and night…”</p><cite>Joshua 1:8 KJV</cite></div>
+    <p class="copyright">© <span id="year"></span> Lord of the Sabbath Church · KJV Scripture quotations</p>
+  </footer>
+  <script src="script.js"></script>
+</body>
+</html>
