@@ -1,0 +1,25 @@
+.devotionals-wrap{background:var(--cream)}
+.devotional-day-nav{display:grid;grid-template-columns:auto 1fr auto;gap:1rem;align-items:center;max-width:1200px;margin:0 auto 2rem;text-align:center}
+.devotional-day-nav strong{display:block;font:1.35rem var(--serif)}
+.devotional-day-nav small{display:block;color:var(--muted)}
+.daily-devotionals{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;max-width:1300px;margin:auto}
+.devotional-card{background:#fff;border-top:4px solid var(--gold);padding:clamp(1.35rem,3vw,2.2rem);box-shadow:0 10px 30px #07142610}
+.devotional-card h2{font:1.65rem/1.25 var(--serif);margin:.3rem 0 1rem}
+.devotional-card h3{font:1.05rem var(--serif);margin:1.4rem 0 .3rem}
+.devotional-card p{color:#4f5c6e}
+.scripture-link{border:0;background:transparent;color:#7d5c0e;text-decoration:underline;text-underline-offset:4px;font-weight:700;padding:0;cursor:pointer}
+.scripture-link:hover{color:#172133}
+.devotional-prayer{background:var(--cream);border-left:3px solid var(--gold);padding:1rem;margin:1.3rem 0}
+.devotional-prayer h3{margin-top:0}
+.devotional-prayer p{margin-bottom:0;font-family:var(--serif)}
+.devotional-actions{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1.4rem}
+.archive-panel{max-width:1200px;margin:3rem auto 0;padding:clamp(1.3rem,4vw,2.5rem);background:#fff;border:1px solid var(--line)}
+.archive-panel>h2{font:2rem var(--serif);margin-top:0}
+.archive-search{display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr;gap:1rem}
+.archive-search label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.archive-search input,.archive-search select{display:block;width:100%;padding:.7rem;margin-top:.35rem;border:1px solid #b8c2cd;background:#fff;text-transform:none;letter-spacing:normal}
+.archive-actions{display:flex;gap:.7rem;margin:1rem 0;flex-wrap:wrap}
+.devotional-archive{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.devotional-card.compact h2{font-size:1.25rem}.devotional-card.compact p{font-size:.86rem}
+@media(max-width:1050px){.daily-devotionals,.devotional-archive{grid-template-columns:1fr 1fr}.archive-search{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){.daily-devotionals,.devotional-archive,.archive-search{grid-template-columns:1fr}.devotional-day-nav{grid-template-columns:1fr 1fr}.devotional-day-nav>div{grid-column:1/-1;grid-row:1}.devotional-day-nav .btn{width:100%}.devotional-actions .btn{width:100%}}
