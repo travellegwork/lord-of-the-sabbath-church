@@ -1,0 +1,10 @@
+.hymn-search-panel{max-width:1100px;margin:0 auto 2rem;background:var(--cream);border-top:4px solid var(--gold);padding:clamp(1.25rem,3vw,2rem)}
+.hymn-search-panel h2{font-family:var(--serif);margin-top:0}
+.hymn-search-panel .library-tools{display:grid;grid-template-columns:1.4fr 1fr 1.2fr;max-width:none;margin-bottom:1rem}
+.hymn-search-panel label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.hymn-search-panel input,.hymn-search-panel select{display:block;width:100%;margin-top:.35rem;text-transform:none;letter-spacing:normal}
+.hymn-search-actions{display:flex;gap:.7rem;flex-wrap:wrap}
+.search-results-heading{max-width:1100px;margin:0 auto 1rem;font-weight:700;color:#68501b}
+.no-hymns{grid-column:1/-1;text-align:center;background:var(--cream);padding:3rem}
+.hymn-card strong u{text-decoration-thickness:1px;text-underline-offset:5px}
+@media(max-width:760px){.hymn-search-panel .library-tools{grid-template-columns:1fr}.hymn-search-actions .btn{width:100%}}
