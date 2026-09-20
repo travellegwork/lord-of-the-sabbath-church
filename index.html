@@ -19,6 +19,7 @@
       <span class="brand-mark" aria-hidden="true">LS</span>
       <span><strong>Lord of the Sabbath</strong><small>CHURCH</small></span>
     </a>
+    <div id="google_translate_element" class="site-translation" aria-label="Translate this website"></div>
     <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
     <nav id="site-nav" class="site-nav" aria-label="Main navigation">
       <a href="#home">Home</a>
@@ -58,8 +59,8 @@
         <div class="daily-grid">
           <article class="verse-card scripture-card">
             <div class="card-label"><span>English</span><strong>King James Version</strong></div>
-            <blockquote id="daily-kjv">Loading today’s Scripture…</blockquote>
-            <cite id="daily-reference"></cite>
+            <blockquote id="daily-kjv" class="notranslate" translate="no">Loading today’s Scripture…</blockquote>
+            <cite id="daily-reference" class="notranslate" translate="no"></cite>
           </article>
           <article class="verse-card translation-card">
             <label for="daily-language">Translation</label>
@@ -75,25 +76,18 @@
         </div>
       </section>
 
-      <section class="motto-section">
-        <div class="ornament" aria-hidden="true">✦</div>
-        <p class="eyebrow">Our permanent motto</p>
-        <blockquote>“This book of the law shall not depart out of thy mouth; but thou shalt meditate therein day and night, that thou mayest observe to do according to all that is written therein: for then thou shalt make thy way prosperous, and then thou shalt have good success.”</blockquote>
-        <cite>Joshua 1:8 KJV</cite>
-      </section>
-
       <section class="soap-section section-pad">
         <div class="section-heading centered">
           <p class="eyebrow dark">Study · Observe · Apply · Pray</p>
-          <h2>My Daily SOAP</h2>
+          <h2>My SOAP of the Day</h2>
           <p>Pause over today’s Scripture. Use the short guide, then write what the LORD is teaching you.</p>
         </div>
         <form id="soap-form" class="soap-layout">
           <aside class="soap-guide">
             <div><span>S</span><h3>Scripture</h3><p id="soap-scripture">Read the verse slowly and prayerfully.</p></div>
-            <div><span>O</span><h3>Observation</h3><p>What does the verse reveal about God, His will or the condition of man?</p></div>
-            <div><span>A</span><h3>Application</h3><p>What truth should I believe, obey or put into practice today?</p></div>
-            <div><span>P</span><h3>Prayer</h3><p>Speak honestly to the LORD about what He has shown you.</p></div>
+            <div><span>O</span><h3>Observation</h3><p id="soap-observation-prompt">What does the verse reveal about God, His will or the condition of man?</p></div>
+            <div><span>A</span><h3>Application</h3><p id="soap-application-prompt">What truth should I believe, obey or put into practice today?</p></div>
+            <div><span>P</span><h3>Prayer</h3><p id="soap-prayer-prompt">Speak honestly to the LORD about what He has shown you.</p></div>
           </aside>
           <div class="soap-fields">
             <label>My Observation<textarea id="soap-observation" rows="4" placeholder="Write your personal observation…"></textarea></label>
@@ -107,6 +101,13 @@
             </div>
           </div>
         </form>
+      </section>
+
+      <section class="motto-section">
+        <div class="ornament" aria-hidden="true">✦</div>
+        <p class="eyebrow">Our permanent motto</p>
+        <blockquote>“This book of the law shall not depart out of thy mouth; but thou shalt meditate therein day and night, that thou mayest observe to do according to all that is written therein: for then thou shalt make thy way prosperous, and then thou shalt have good success.”</blockquote>
+        <cite>Joshua 1:8 KJV</cite>
       </section>
 
       <section class="pillars section-pad">
@@ -125,7 +126,7 @@
           <label>Side-by-side language<select id="reader-language"></select></label>
         </div>
         <div class="reader-grid">
-          <article class="bible-panel">
+          <article class="bible-panel notranslate" translate="no">
             <div class="panel-heading"><span>English</span><strong>King James Version</strong></div>
             <h2 id="chapter-title">Genesis 1</h2>
             <div id="chapter-verses" class="chapter-text" aria-live="polite"></div>
@@ -219,7 +220,7 @@
     <section id="about" class="page inner-page" data-title="About Us | Lord of the Sabbath Church">
       <header class="page-banner"><p class="eyebrow">Who we are</p><h1>About Lord of the Sabbath Church</h1><p>A KJV-centred Christian fellowship seeking to honour the Lord Jesus Christ through faith, truth and obedience.</p></header>
       <section class="article-layout section-pad">
-        <article class="prose"><h2>Our purpose</h2><p>We exist to proclaim the gospel of the Lord Jesus Christ, teach the Word of God, make disciples and encourage believers to walk faithfully with Him.</p><h2>What guides us</h2><p>We receive the Authorized King James Bible as our English authority for doctrine and practice. We remember the seventh-day Sabbath, study the appointed Feasts of the LORD and gather around Scripture, worship and prayer.</p><h2>Christ at the centre</h2><p>Our hope is not in religious observance. Forgiveness and eternal life are found in the Lord Jesus Christ alone. We desire that every teaching and practice lead people nearer to Him.</p></article>
+        <article class="prose"><h2>Our purpose</h2><p>We exist to proclaim the gospel of the Lord Jesus Christ, teach the Word of God, make disciples and encourage believers to walk faithfully with Him.</p><h2>What guides us</h2><p>We receive the Authorized King James Bible as our English authority for doctrine and practice. We remember the seventh-day Sabbath, study the appointed Feasts of the LORD and gather around Scripture, worship and prayer.</p><h2>Christ at the centre</h2><p>Our hope is not in religious observance. Forgiveness and eternal life are found in the Lord Jesus Christ alone. We desire that every teaching and practice lead people nearer to Him.</p><h2>Contact us</h2><p>Email us at <a href="mailto:shalom@lordofthesabbath.church">shalom@lordofthesabbath.church</a>.</p></article>
         <aside class="belief-list"><h2>Our foundations</h2><ul><li><strong>The Scriptures</strong><span>The Word of God is true and authoritative.</span></li><li><strong>The Lord Jesus Christ</strong><span>Crucified, buried, risen and coming again.</span></li><li><strong>Salvation by grace</strong><span>Received through faith, not earned by works.</span></li><li><strong>Holy living</strong><span>Obedience as the fruit of a redeemed life.</span></li><li><strong>Prayer and fellowship</strong><span>Growing together in Christ and His Word.</span></li></ul></aside>
       </section>
     </section>
@@ -231,11 +232,12 @@
   </main>
 
   <footer class="site-footer">
-    <div class="footer-brand"><span class="brand-mark">LS</span><div><strong>Lord of the Sabbath Church</strong><p>Jesus Christ is Lord.</p></div></div>
+    <div class="footer-brand"><span class="brand-mark">LS</span><div><strong>Lord of the Sabbath Church</strong><p>Jesus Christ is Lord.</p><a href="mailto:shalom@lordofthesabbath.church">shalom@lordofthesabbath.church</a></div></div>
     <div><h2>Explore</h2><a href="#bible">Read the Bible</a><a href="#commandments">Ten Commandments</a><a href="#sabbath">The Sabbath</a><a href="#feasts">Feasts of the LORD</a><a href="#salvation">Bible Way to Heaven</a></div>
     <div><h2>Our motto</h2><p>“Meditate therein day and night…”</p><cite>Joshua 1:8 KJV</cite></div>
     <p class="copyright">© <span id="year"></span> Lord of the Sabbath Church · KJV Scripture quotations</p>
   </footer>
   <script src="script.js"></script>
+  <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async></script>
 </body>
 </html>
