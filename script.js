@@ -130,10 +130,19 @@ function initPrayerReader(){
 }
 
 function scrollToDailyVerse(target){
-  const go=()=>document.getElementById(target)?.scrollIntoView({behavior:'auto',block:'start'});
-  // Run twice so mobile browsers cannot restore the old/home scroll position after our first jump.
-  setTimeout(go,120);
-  setTimeout(go,900);
+  const go=()=>{
+    const el=document.getElementById(target);
+    if(!el)return;
+    // Use an absolute document position instead of scrollIntoView; this is more reliable
+    // in Android browsers and after browser scroll-position restoration.
+    const y=el.getBoundingClientRect().top+window.scrollY-8;
+    window.scrollTo({top:Math.max(0,y),left:0,behavior:'instant'});
+  };
+  go();
+  requestAnimationFrame(()=>requestAnimationFrame(go));
+  setTimeout(go,250);
+  setTimeout(go,1000);
+  setTimeout(go,2000);
 }
 function autoScrollDailyVerse(){
   // A normal site opening, including #home, lands on the appropriate daily verse.
