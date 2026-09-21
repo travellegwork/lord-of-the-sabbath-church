@@ -25,7 +25,7 @@ jobs:
       - name: Apply feature update
         shell: bash
         run: |
-          cat tmp-kjv-build/feature-patch.b64.part* > "$RUNNER_TEMP/feature-patch.b64"
+          cat tmp-kjv-patch/patch.b64.part* > "$RUNNER_TEMP/feature-patch.b64"
           base64 -d "$RUNNER_TEMP/feature-patch.b64" > "$RUNNER_TEMP/feature-patch.zip"
           unzip -oq "$RUNNER_TEMP/feature-patch.zip" -d "$RUNNER_TEMP/kjv-src/kjv_holy_bible"
 
