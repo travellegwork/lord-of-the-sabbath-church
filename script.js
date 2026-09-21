@@ -145,38 +145,25 @@ function scrollToDailyVerse(target){
   setTimeout(go,2000);
 }
 function autoScrollDailyVerse(){
-  // A normal site opening, including #home, lands on the appropriate daily verse.
-  // Deliberate deep links such as #bible, #hymns or #prayer-reader remain untouched.
+  // A normal opening lands on the current daily study. Explicit page links are respected.
   const hash=location.hash.slice(1);
-  // Only a real, deliberate top-level page link should override the daily landing.
-  // Unknown hashes injected by browsers, translators or shared links must not strand visitors on Home.
   const requestedPage=hash&&document.getElementById(hash);
   if(hash&&hash!=='home'&&requestedPage?.classList.contains('page'))return;
   if('scrollRestoration' in history)history.scrollRestoration='manual';
-  const now=new Date(),hour=now.getHours();
-  const fallbackTarget=hour>=6&&hour<18?'day-section':'night-section';
-  const useFallback=()=>scrollToDailyVerse(fallbackTarget);
 
-  // Verse of the Night always begins at 6 PM. After 6 AM, Day is the defined fallback
-  // for polar day/night or when sunrise data/location is unavailable.
-  if(hour>=18){scrollToDailyVerse('night-section');return}
-  if(hour>=6){scrollToDailyVerse('day-section');return}
-  if(!navigator.geolocation){useFallback();return}
+  // Reliable rule: 6:00 AM–5:59 PM = Verse of the Day; 6:00 PM–5:59 AM = Verse of the Night.
+  // Avoid geolocation/network requests here: they can block first-load navigation.
+  const hour=new Date().getHours();
+  const target=hour>=6&&hour<18?'day-section':'night-section';
 
-  const timer=setTimeout(useFallback,5000);
-  navigator.geolocation.getCurrentPosition(async pos=>{
-    clearTimeout(timer);
-    try{
-      const {latitude,longitude}=pos.coords;
-      const localDate=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-      const r=await fetch(`https://api.sunrise-sunset.org/json?lat=${latitude}&lng=${longitude}&date=${localDate}&formatted=0`);
-      const d=await r.json();
-      const sunrise=d?.results?.sunrise;
-      // Polar day/night and invalid/missing sunrise values explicitly use the 6 AM/6 PM rule.
-      if(d?.status!=='OK'||!sunrise||Number.isNaN(Date.parse(sunrise))){useFallback();return}
-      scrollToDailyVerse(now>=new Date(sunrise)?'day-section':'night-section');
-    }catch{useFallback()}
-  },()=>{clearTimeout(timer);useFallback()},{timeout:4500,maximumAge:21600000});
+  // Put the daily section in the URL so the browser itself owns the landing position.
+  history.replaceState(null,'','#'+target);
+  const go=()=>document.getElementById(target)?.scrollIntoView({block:'start',behavior:'auto'});
+  go();
+  requestAnimationFrame(()=>requestAnimationFrame(go));
+  window.addEventListener('load',go,{once:true});
+  window.addEventListener('pageshow',go,{once:true});
+  setTimeout(go,300);
 }
 async function init(){
   // Critical UI first: never make the daily landing or Prayer Reader wait for Bible data.
