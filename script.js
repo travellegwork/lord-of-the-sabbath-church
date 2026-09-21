@@ -71,8 +71,8 @@ function clearHymnSearch(){$('#hymn-search').value='';$('#hymn-scripture').value
 function hymnScripture(ref){const m=ref.match(/^(.+?)\s(\d+):(\d+)(?:[–-](\d+))?$/);if(!m)return'';const b=m[1],c=Number(m[2]),start=Number(m[3]),end=Number(m[4]||m[3]),parts=[];for(let v=start;v<=end;v++){const text=getVerse(b,c,v);if(text)parts.push(`${v} ${text}`)}return parts.join(' ')}
 async function openHymn(title){const h=HYMNS.find(x=>x.title===title);if(!h)return;let modal=$('#hymn-modal');if(!modal){modal=document.createElement('div');modal.id='hymn-modal';modal.className='hymn-modal';document.body.append(modal)}const lang=$('#site-language').value,lyrics=lang==='en'?h.lyrics:await translate(h.lyrics,lang),passage=hymnScripture(h.ref),translatedPassage=lang==='en'?passage:await translate(passage,lang);modal.innerHTML=`<article><button class="hymn-close" aria-label="Close hymn">×</button><p class="eyebrow">Hymn and Spiritual Song · Verified Public Domain</p><h1>${h.title}</h1><section class="hymn-full-scripture"><button class="scripture-link" type="button">${h.ref} KJV</button><blockquote class="notranslate" translate="no">“${escapeHtml(passage)}”</blockquote>${lang==='en'?'':`<blockquote>“${escapeHtml(translatedPassage)}”</blockquote>`}</section><div class="hymn-columns"><pre class="notranslate" translate="no">${escapeHtml(h.lyrics)}</pre>${lang==='en'?'':`<pre>${escapeHtml(lyrics)}</pre>`}</div><p class="translation-disclaimer">${lang==='en'?'Complete verified public-domain English lyrics.':`${LANG[lang]} is an automated translation of the English hymn shown beside it.`}</p></article>`;modal.classList.add('open');document.body.classList.add('modal-open');modal.querySelector('.hymn-close').onclick=closeHymn;modal.querySelector('.scripture-link').onclick=()=>{closeHymn();openDevotionalScripture(h.ref)};modal.onclick=e=>{if(e.target===modal)closeHymn()}}
 function closeHymn(){$('#hymn-modal')?.classList.remove('open');document.body.classList.remove('modal-open')}
-function route(){const id=location.hash.slice(1)||'home',page=document.getElementById(id)||$('#home');$$('.page').forEach(p=>p.classList.toggle('active',p===page));$$('#nav a').forEach(a=>a.classList.toggle('active',a.hash===`#${page.id}`));document.title=`${page.dataset.title} | Lord of the Sabbath Church`;$('#nav').classList.remove('open');$('.menu').setAttribute('aria-expanded','false');scrollTo(0,0)}
-function buildStatic(){today=dailyPair();$('#daily-mount').innerHTML=soapMarkup('Day','Verse of the Day',today.day)+soapMarkup('Night','Verse of the Night',today.night);$('#calendar-title').textContent=today.event?today.event.name:'Daily KJV meditation';$('#calendar-note').textContent=today.event?`Today’s verses, SOAP guidance and hymns emphasize ${today.event.theme}. Content dates change at local midnight; biblical observances are identified from the biblical calendar.`:'The Day and Night verses change together at local midnight.';$('#commandments-list').innerHTML=COMMANDMENTS.map(x=>`<article><b>${x[0]}</b><h2>${x[1]}</h2><blockquote>“${x[2]}”</blockquote><cite>${x[3]} KJV</cite></article>`).join('');$('#feast-list').innerHTML=FEASTS.map((x,i)=>`<article><b>0${i+1}</b><h2>${x[0]}</h2><p>${x[1]}</p><cite>${x[2]}</cite></article>`).join('');['day','night'].forEach(k=>{const ref=today[k],text=getVerse(...Object.values(parseRef(ref)));$(`#${k}-en`).textContent=text?`“${text}”`:'Scripture unavailable.';document.querySelector(`form[data-soap="${k}"] .email-soap`).addEventListener('click',e=>emailSoap(e.target.form));document.querySelector(`form[data-soap="${k}"] .save-account`).addEventListener('click',e=>{e.target.form.querySelector('.status').textContent='Secure account subscriptions require the payment gateway to be connected. Your writing remains safely in this browser for this session.'});preserveSoap(document.querySelector(`form[data-soap="${k}"]`))});renderHymns()}
+function route(){const id=location.hash.slice(1)||'home',target=document.getElementById(id);const page=target?.classList.contains('page')?target:(id==='day-section'||id==='night-section'?$('#home'):$('#home'));$('.page').forEach(p=>p.classList.toggle('active',p===page));$('#nav a').forEach(a=>a.classList.toggle('active',a.hash===`#${page.id}`));document.title=`${page.dataset.title} | Lord of the Sabbath Church`;$('#nav').classList.remove('open');$('.menu').setAttribute('aria-expanded','false');if(id==='day-section'||id==='night-section'){requestAnimationFrame(()=>document.getElementById(id)?.scrollIntoView({block:'start',behavior:'auto'}))}else scrollTo(0,0)}
+function buildStatic(){today=dailyPair();$('#daily-mount').innerHTML=soapMarkup('Day','Verse of the Day',today.day)+soapMarkup('Night','Verse of the Night',today.night);$('#calendar-title').textContent=today.event?today.event.name:'Daily KJV meditation';$('#calendar-note').textContent=today.event?`Today’s verses, SOAP guidance and hymns emphasize ${today.event.theme}. Day/Night meditation changes at the user's local sunrise and sunset; biblical observances are identified from the biblical calendar.`:'Verse of the Day begins at local sunrise. Verse of the Night begins at local sunset.';$('#commandments-list').innerHTML=COMMANDMENTS.map(x=>`<article><b>${x[0]}</b><h2>${x[1]}</h2><blockquote>“${x[2]}”</blockquote><cite>${x[3]} KJV</cite></article>`).join('');$('#feast-list').innerHTML=FEASTS.map((x,i)=>`<article><b>0${i+1}</b><h2>${x[0]}</h2><p>${x[1]}</p><cite>${x[2]}</cite></article>`).join('');['day','night'].forEach(k=>{const ref=today[k];$(`#${k}-en`).textContent='Loading KJV Scripture…';document.querySelector(`form[data-soap="${k}"] .email-soap`).addEventListener('click',e=>emailSoap(e.target.form));document.querySelector(`form[data-soap="${k}"] .save-account`).addEventListener('click',e=>{e.target.form.querySelector('.status').textContent='Secure account subscriptions require the payment gateway to be connected. Your writing remains safely in this browser for this session.'});preserveSoap(document.querySelector(`form[data-soap="${k}"]`))});renderHymns()}
 function parseRef(ref){const m=ref.match(/^(.+?) (\d+):(\d+)$/);return{book:m[1],chapter:+m[2],verse:+m[3]}}
 const FINANCE_KEY='lots-finance-v1',TODO_KEY='lots-todos-v1';
 let finance={income:[],expenses:[],strategies:[],taxRate:20,period:'Monthly',from:'',to:''},todos=[],todoFilter='Today';
@@ -145,25 +145,29 @@ function scrollToDailyVerse(target){
   setTimeout(go,2000);
 }
 function autoScrollDailyVerse(){
-  // A normal opening lands on the current daily study. Explicit page links are respected.
   const hash=location.hash.slice(1);
   const requestedPage=hash&&document.getElementById(hash);
   if(hash&&hash!=='home'&&requestedPage?.classList.contains('page'))return;
   if('scrollRestoration' in history)history.scrollRestoration='manual';
-
-  // Reliable rule: 6:00 AM–5:59 PM = Verse of the Day; 6:00 PM–5:59 AM = Verse of the Night.
-  // Avoid geolocation/network requests here: they can block first-load navigation.
-  const hour=new Date().getHours();
-  const target=hour>=6&&hour<18?'day-section':'night-section';
-
-  // Put the daily section in the URL so the browser itself owns the landing position.
-  history.replaceState(null,'','#'+target);
-  const go=()=>document.getElementById(target)?.scrollIntoView({block:'start',behavior:'auto'});
-  go();
-  requestAnimationFrame(()=>requestAnimationFrame(go));
-  window.addEventListener('load',go,{once:true});
-  window.addEventListener('pageshow',go,{once:true});
-  setTimeout(go,300);
+  const now=new Date();
+  const fallback=()=>{const h=now.getHours();return h>=6&&h<18?'day-section':'night-section'};
+  const land=target=>{
+    history.replaceState(null,'','#'+target);
+    const go=()=>document.getElementById(target)?.scrollIntoView({block:'start',behavior:'auto'});
+    go();requestAnimationFrame(()=>requestAnimationFrame(go));setTimeout(go,250);
+  };
+  // Land immediately; refine to the user's actual local sunrise/sunset if location is permitted.
+  land(fallback());
+  if(!navigator.geolocation)return;
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    try{
+      const {latitude,longitude}=pos.coords;
+      const date=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+      const r=await fetch(`https://api.sunrise-sunset.org/json?lat=${latitude}&lng=${longitude}&date=${date}&formatted=0`,{cache:'no-store'});
+      const d=await r.json(),sunrise=Date.parse(d?.results?.sunrise),sunset=Date.parse(d?.results?.sunset);
+      if(d?.status==='OK'&&!Number.isNaN(sunrise)&&!Number.isNaN(sunset))land(now.getTime()>=sunrise&&now.getTime()<sunset?'day-section':'night-section');
+    }catch{}
+  },()=>{}, {timeout:3500,maximumAge:21600000});
 }
 async function init(){
   // Critical UI first: never make the daily landing or Prayer Reader wait for Bible data.
