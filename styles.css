@@ -84,3 +84,9 @@
 @media(max-width:760px){.voice-preview{width:100%}}
 
 .hymn-source-card{text-decoration:none;color:inherit}.hymn-source-card:hover,.hymn-source-card:focus-visible{transform:translateY(-2px)}
+
+/* Financial Planning bilingual layout */
+.finance-bilingual{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1rem;align-items:start}
+.finance-language-panel{min-width:0}.finance-language-panel[hidden]{display:none!important}
+.finance-translation-note{margin:1rem clamp(1rem,3vw,3rem) 0;padding:.8rem 1rem;border:1px solid #dbe1e8;border-radius:12px;background:#fff;font-size:.9rem}
+@media(max-width:900px){.finance-bilingual{grid-template-columns:1fr}.finance-language-panel:first-child{order:1}#financial-tr{order:2}}
