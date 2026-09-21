@@ -121,14 +121,37 @@ function initPrayerReader(){
   if(!text)return;
   let utter=null,prayers=[];
   try{prayers=JSON.parse(localStorage.getItem('lots-prayers')||'[]')}catch{prayers=[]}
+  const synth=('speechSynthesis' in window)?window.speechSynthesis:null;
   const save=()=>localStorage.setItem('lots-prayers',JSON.stringify(prayers));
-  const voices=()=>{if(!('speechSynthesis'in window))return;const all=speechSynthesis.getVoices();voice.innerHTML='<option value="">Device default</option>'+all.map((v,i)=>`<option value="${i}">${v.name} · ${v.lang}</option>`).join('')};
-  voices();if('speechSynthesis'in window)speechSynthesis.onvoiceschanged=voices;
-  const speak=()=>{const value=text.value.trim();if(!value){status.textContent='Paste or type a prayer first.';return}if(!('speechSynthesis'in window)){status.textContent='Prayer reading is not supported by this browser. Try the Android app or another modern browser.';return}speechSynthesis.cancel();utter=new SpeechSynthesisUtterance(value);utter.rate=+rate.value;const all=speechSynthesis.getVoices(),v=all[+voice.value];if(voice.value!==''&&v)utter.voice=v;utter.onstart=()=>status.textContent='Reading prayer aloud…';utter.onend=()=>status.textContent='Prayer reading finished.';utter.onerror=()=>status.textContent='The prayer reader stopped.';speechSynthesis.speak(utter)};
-  const render=()=>{const q=($('#prayer-search').value||'').toLowerCase();const rows=prayers.map((p,i)=>({...p,i})).filter(p=>!q||p.name.toLowerCase().includes(q)||p.text.toLowerCase().includes(q));list.innerHTML=rows.length?rows.map(p=>`<article class="saved-prayer"><button class="saved-prayer-open" data-i="${p.i}" type="button"><strong>${escapeHtml(p.name)}</strong><span>${escapeHtml(p.text.slice(0,120))}${p.text.length>120?'…':''}</span></button><button class="saved-prayer-delete" data-i="${p.i}" type="button" aria-label="Delete ${escapeHtml(p.name)}">Delete</button></article>`).join(''):'<p>No saved prayers yet.</p>';$('.saved-prayer-open').forEach(b=>b.onclick=()=>{const p=prayers[+b.dataset.i];name.value=p.name;text.value=p.text;text.focus()});$('.saved-prayer-delete').forEach(b=>b.onclick=()=>{prayers.splice(+b.dataset.i,1);save();render()})};
-  $('#prayer-play').onclick=speak;$('#prayer-pause').onclick=()=>{speechSynthesis?.pause();status.textContent='Prayer paused.'};$('#prayer-resume').onclick=()=>{speechSynthesis?.resume();status.textContent='Prayer resumed.'};$('#prayer-stop').onclick=()=>{speechSynthesis?.cancel();status.textContent='Prayer stopped.'};$('#prayer-restart').onclick=()=>{speechSynthesis?.cancel();speak()};rate.oninput=()=>$('#prayer-rate-value').textContent=rate.value+'×';$('#save-prayer').onclick=()=>{const value=text.value.trim();if(!value){status.textContent='Enter a prayer before saving.';return}const title=name.value.trim()||'Saved Prayer '+new Date().toLocaleDateString();prayers.unshift({name:title,text:value,updated:new Date().toISOString()});save();name.value=title;status.textContent='Prayer saved on this device.';render()};$('#prayer-search').oninput=render;render()
+  const voices=()=>{if(!synth)return;const all=synth.getVoices();voice.innerHTML='<option value="">Device default</option>'+all.map((v,i)=>`<option value="${i}">${v.name} · ${v.lang}</option>`).join('')};
+  voices();if(synth)synth.onvoiceschanged=voices;
+  const speak=()=>{
+    const value=text.value.trim();
+    if(!value){status.textContent='Paste or type a prayer first.';return}
+    if(!synth||!('SpeechSynthesisUtterance' in window)){status.textContent='Read aloud is not supported by this browser.';return}
+    synth.cancel();
+    utter=new SpeechSynthesisUtterance(value);
+    utter.rate=Number(rate.value)||1;
+    const all=synth.getVoices(),selected=voice.value===''?null:all[Number(voice.value)];
+    if(selected)utter.voice=selected;
+    utter.onstart=()=>status.textContent='Reading prayer aloud…';
+    utter.onend=()=>status.textContent='Prayer reading finished.';
+    utter.onerror=e=>status.textContent='Prayer reader stopped'+(e?.error?' ('+e.error+').':'.');
+    // Mobile browsers require speak() to occur synchronously from the user's tap.
+    synth.speak(utter);
+    setTimeout(()=>{if(synth.paused)synth.resume()},50);
+  };
+  const render=()=>{const q=($('#prayer-search').value||'').toLowerCase();const rows=prayers.map((p,i)=>({...p,i})).filter(p=>!q||p.name.toLowerCase().includes(q)||p.text.toLowerCase().includes(q));list.innerHTML=rows.length?rows.map(p=>`<article class="saved-prayer"><button class="saved-prayer-open" data-i="${p.i}" type="button"><strong>${escapeHtml(p.name)}</strong><span>${escapeHtml(p.text.slice(0,120))}${p.text.length>120?'…':''}</span></button><button class="saved-prayer-delete" data-i="${p.i}" type="button" aria-label="Delete ${escapeHtml(p.name)}">Delete</button></article>`).join(''):'<p>No saved prayers yet.</p>';document.querySelectorAll('.saved-prayer-open').forEach(b=>b.onclick=()=>{const p=prayers[+b.dataset.i];name.value=p.name;text.value=p.text;text.focus()});document.querySelectorAll('.saved-prayer-delete').forEach(b=>b.onclick=()=>{prayers.splice(+b.dataset.i,1);save();render()})};
+  $('#prayer-play').onclick=speak;
+  $('#prayer-pause').onclick=()=>{if(synth){synth.pause();status.textContent='Prayer paused.'}};
+  $('#prayer-resume').onclick=()=>{if(synth){synth.resume();status.textContent='Prayer resumed.'}};
+  $('#prayer-stop').onclick=()=>{if(synth){synth.cancel();status.textContent='Prayer stopped.'}};
+  $('#prayer-restart').onclick=()=>{if(synth)synth.cancel();speak()};
+  rate.oninput=()=>$('#prayer-rate-value').textContent=rate.value+'×';
+  $('#save-prayer').onclick=()=>{const value=text.value.trim();if(!value){status.textContent='Enter a prayer before saving.';return}const title=name.value.trim()||'Saved Prayer '+new Date().toLocaleDateString();prayers.unshift({name:title,text:value,updated:new Date().toISOString()});save();name.value=title;status.textContent='Prayer saved on this device.';render()};
+  $('#prayer-search').oninput=render;
+  render();
 }
-
 function scrollToDailyVerse(target){
   const go=()=>{
     const el=document.getElementById(target);
