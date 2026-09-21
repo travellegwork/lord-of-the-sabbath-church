@@ -115,13 +115,31 @@ function searchDevotionals(){const q=$('#devotional-keyword').value.trim().toLow
 function initDevotionals(){devotionalDate=new Date();renderDevotionals();$('#previous-devotional-day').onclick=()=>{devotionalDate.setDate(devotionalDate.getDate()-1);renderDevotionals()};$('#next-devotional-day').onclick=()=>{const tomorrow=new Date(devotionalDate);tomorrow.setDate(tomorrow.getDate()+1);if(tomorrow<=new Date()){devotionalDate=tomorrow;renderDevotionals()}};$('#search-devotionals').onclick=searchDevotionals;['devotional-keyword','devotional-scripture'].forEach(id=>$(`#${id}`).onkeydown=e=>{if(e.key==='Enter')searchDevotionals()});$('#clear-devotionals').onclick=()=>{$('#devotional-keyword').value='';$('#devotional-scripture').value='';$('#devotional-theme').value=$('#devotional-type').value='all';searchDevotionals()};searchDevotionals()}
 function initHymnSearch(){$('#hymn-search').onkeydown=e=>{if(e.key==='Enter')executeHymnSearch()};$('#hymn-scripture').onkeydown=e=>{if(e.key==='Enter')executeHymnSearch()};$('#search-hymns').onclick=executeHymnSearch;$('#search-hymns-web').onclick=searchHymnsOnWeb;$('#clear-hymn-search').onclick=clearHymnSearch}
 function events(){window.addEventListener('hashchange',route);$('.menu').onclick=e=>{const open=$('#nav').classList.toggle('open');e.currentTarget.setAttribute('aria-expanded',open)};$('#site-language').onchange=e=>applyInterfaceLanguage(e.target.value);$('#book-select').onchange=e=>{book=e.target.value;chapter=verse=1;populateChapters();renderSingle()};$('#chapter-select').onchange=e=>{chapter=+e.target.value;verse=1;populateVerses();renderSingle()};$('#verse-select').onchange=e=>{verse=+e.target.value;renderSingle()};$('#prev-verse').onclick=()=>moveVerse(-1);$('#next-verse').onclick=()=>moveVerse(1);$('#full-chapter').onclick=()=>renderFullChapter();$('#close-chapter').onclick=renderSingle;$('#prev-chapter').onclick=()=>moveChapter(-1);$('#next-chapter').onclick=()=>moveChapter(1);$('#hymn-search').oninput=renderHymns;$('#hymn-filter').onchange=renderHymns;$('#donate').onclick=()=>$('#donate-status').textContent='The secure Flik payment gateway will become available after the ministry’s merchant account and checkout credentials are approved and connected. No payment information has been collected.'}
+function scrollToDailyVerse(target){
+  setTimeout(()=>document.getElementById(target)?.scrollIntoView({behavior:'auto',block:'start'}),350);
+}
 function autoScrollDailyVerse(){
   // Respect explicit shared/deep links. Automatic landing applies only to a plain site visit.
   if(location.hash)return;
-  const hour=new Date().getHours();
-  const target=hour>=18&&hour<24?'night-section':'day-section';
-  // Wait for the daily/SOAP markup and browser layout to finish before scrolling.
-  setTimeout(()=>document.getElementById(target)?.scrollIntoView({behavior:'auto',block:'start'}),350);
+  const now=new Date(),hour=now.getHours();
+  // Verse of the Night always begins at 6 PM. Before 6 AM it remains the night verse
+  // unless sunrise for the visitor's location has already occurred.
+  if(hour>=18){scrollToDailyVerse('night-section');return}
+  if(hour>=6){scrollToDailyVerse('day-section');return}
+  if(!navigator.geolocation){scrollToDailyVerse('night-section');return}
+  const fallback=setTimeout(()=>scrollToDailyVerse('night-section'),4500);
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    clearTimeout(fallback);
+    try{
+      const {latitude,longitude}=pos.coords;
+      const date=now.toISOString().slice(0,10);
+      const r=await fetch(`https://api.sunrise-sunset.org/json?lat=${latitude}&lng=${longitude}&date=${date}&formatted=0`);
+      const d=await r.json(),sunrise=d?.results?.sunrise;
+      if(!sunrise){scrollToDailyVerse('night-section');return}
+      const sunriseTime=new Date(sunrise);
+      scrollToDailyVerse(now>=sunriseTime?'day-section':'night-section');
+    }catch{scrollToDailyVerse('night-section')}
+  },()=>{clearTimeout(fallback);scrollToDailyVerse('night-section')},{timeout:4000,maximumAge:21600000});
 }
 async function init(){try{const r=await fetch('assets/kjv-1769.json');if(!r.ok)throw Error();bible=await r.json()}catch{$('#daily-mount').innerHTML='<p class="error">The Bible data could not be loaded. Please refresh.</p>';return}buildStatic();if(today.event===EVENTS.atonement)$('#daily-mount').insertAdjacentHTML('afterbegin',feastFeature());populateBooks();renderSingle();events();initHymnSearch();initDevotionals();initFinance();initTodos();loadPrivateData();window.addEventListener('keydown',e=>{if(e.key==='Escape')closeHymn()});route();autoScrollDailyVerse();$('#year').textContent=new Date().getFullYear();setTimeout(()=>{const c=$('.goog-te-combo');if(c)c.setAttribute('aria-label','Google website translation')},2500)}
 init();
