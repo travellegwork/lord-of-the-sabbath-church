@@ -30,7 +30,7 @@ HYMNS.push(
 );
 HYMNS.forEach(h=>h.lyrics=FULL_HYMN_LYRICS[h.title]||h.lyrics);
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
-let bible={},book='Genesis',chapter=1,verse=1,mode='single',today={},devotionalDate=new Date(),highlightEnd=1;
+let bible={},book='Genesis',chapter=1,verse=1,mode='single',today={},devotionalDate=new Date(),highlightEnd=1,PD_HYMN_CATALOG=[];
 const ORIGINAL_TEXT=new WeakMap(),ORIGINAL_PLACEHOLDER=new WeakMap();
 const clean=s=>(s||'').replace(/^#\s*/,'').replace(/\[([^\]]+)\]/g,'$1').trim();
 const refText=(b=book,c=chapter,v=verse)=>`${b} ${c}:${v}`;
@@ -63,7 +63,25 @@ function preserveSoap(form){['observation','application','prayer'].forEach(n=>{c
 
 function feastFeature(){if(today.event!==EVENTS.atonement)return'';return `<section class="atonement-feature"><div class="atonement-title"><p class="eyebrow">Feast of the LORD · A Holy Convocation</p><h2>Day of Atonement</h2><p class="atonement-date">${dateLabel(today.date)}</p></div><div class="atonement-content"><article><h3>How the LORD commanded it to be observed</h3><p>Leviticus 23:27–32 calls the Day of Atonement a <strong>holy convocation</strong>. God commanded His people to afflict their souls, offer an offering made by fire, do no work, and keep it as a sabbath of rest—from evening unto evening.</p><blockquote>“It shall be unto you a sabbath of rest, and ye shall afflict your souls…” <cite>Leviticus 23:32 KJV</cite></blockquote><p>This is a solemn time for humble self-examination, repentance, prayer, rest from ordinary work, and reverent gathering before the LORD. Fasting may express the biblical command to afflict the soul, but outward observance must be joined with a heart that turns from sin and seeks God sincerely.</p></article><article><h3>Foreshadowing the Lamb of God</h3><p>The sacrifices and high-priestly ministry of the Day of Atonement pointed forward to the perfect and sufficient sacrifice of the Lord Jesus Christ. He did not offer the blood of another; He offered Himself once to bear the sins of many.</p><blockquote>“Behold the Lamb of God, which taketh away the sin of the world.” <cite>John 1:29 KJV</cite></blockquote><p>Hebrews 9 teaches that Christ entered into the holy place by His own blood and obtained eternal redemption. Therefore, this feast directs our faith to His finished atoning work, calls sinners to repentance, and encourages believers to await His appearing.</p><blockquote>“So Christ was once offered to bear the sins of many…” <cite>Hebrews 9:28 KJV</cite></blockquote></article></div><div class="atonement-call"><h3>A solemn invitation</h3><p>Humble your heart before the LORD. Confess and forsake sin. Rest from ordinary labour. Gather for Scripture, prayer and worship. Give thanks that forgiveness and cleansing are found through faith in the Lord Jesus Christ—the Lamb of God and our great High Priest.</p></div></section>`}
 
-function renderHymns(){const q=($('#hymn-search')?.value||'').trim().toLowerCase(),scripture=($('#hymn-scripture')?.value||'').trim().toLowerCase(),f=$('#hymn-filter')?.value||'all',event=today.event;let hymns=HYMNS.filter(h=>{const text=`${h.title} ${h.ref} ${h.theme} ${h.lyrics}`.toLowerCase();return(f==='all'||h.theme.includes(f))&&(!q||text.includes(q))&&(!scripture||text.includes(scripture))});if(event)hymns.sort((a,b)=>Number(b.theme.includes(event===EVENTS.sabbath?'sabbath':'feast'))-Number(a.theme.includes(event===EVENTS.sabbath?'sabbath':'feast')));$('#hymn-season').textContent=event?`Recommended for ${event.name}: ${event.theme}.`:'Verified public-domain hymns centred upon Scripture and the Lord Jesus Christ.';const status=$('#hymn-search-status');if(status)status.textContent=(q||scripture||f!=='all')?`${hymns.length} matching hymn${hymns.length===1?'':'s'} found in this library.`:`${hymns.length} verified complete hymns available. Search by title, theme or Scripture.`;$('#hymn-list').innerHTML=hymns.map(h=>{const i=HYMNS.indexOf(h),passage=hymnScripture(h.ref);return`<button class="hymn-card" type="button" data-hymn-index="${i}" aria-label="Open complete lyrics for ${escapeHtml(h.title)}"><span class="eyebrow">Verified Public Domain</span><strong><u>${h.title}</u></strong><cite>${h.ref} KJV</cite><blockquote class="hymn-scripture-preview notranslate" translate="no">“${escapeHtml(passage)}”</blockquote><span>Click to open all hymn verses →</span></button>`}).join('')||'<div class="no-hymns"><h2>No matching hymn is currently stored.</h2><p>Change your terms or use “Search All Hymns on the Web” to find a public-domain hymn.</p></div>';$$('.hymn-card').forEach(b=>b.addEventListener('click',()=>openHymnByIndex(Number(b.dataset.hymnIndex))))}
+async function loadPublicDomainHymnCatalog(){
+  try{
+    const r=await fetch('hymn-catalog.php?v=20260922-1',{cache:'no-store'}),d=await r.json();
+    if(d.ok&&Array.isArray(d.hymns)){PD_HYMN_CATALOG=d.hymns;renderHymns()}
+  }catch(e){console.error('Public-domain hymn catalogue',e)}
+}
+function renderHymns(){
+  const q=($('#hymn-search')?.value||'').trim().toLowerCase(),scripture=($('#hymn-scripture')?.value||'').trim().toLowerCase(),f=$('#hymn-filter')?.value||'all',event=today.event;
+  let hymns=HYMNS.filter(h=>{const text=`${h.title} ${h.ref} ${h.theme} ${h.lyrics}`.toLowerCase();return(f==='all'||h.theme.includes(f))&&(!q||text.includes(q))&&(!scripture||text.includes(scripture))});
+  if(event)hymns.sort((a,b)=>Number(b.theme.includes(event===EVENTS.sabbath?'sabbath':'feast'))-Number(a.theme.includes(event===EVENTS.sabbath?'sabbath':'feast')));
+  const catalog=PD_HYMN_CATALOG.filter(h=>{const text=`${h.title} ${h.credit||''}`.toLowerCase();return f==='all'&&(!q||text.includes(q))&&!scripture});
+  $('#hymn-season').textContent=event?`Recommended for ${event.name}: ${event.theme}.`:'Public-domain hymn catalogue plus locally stored complete hymns.';
+  const status=$('#hymn-search-status');
+  if(status)status.textContent=`${hymns.length} complete hymn${hymns.length===1?'':'s'} stored here${PD_HYMN_CATALOG.length?'; '+catalog.length+' additional public-domain catalogue entries available.':'. Loading the full public-domain catalogue…'}`;
+  const local=hymns.map(h=>{const i=HYMNS.indexOf(h),passage=hymnScripture(h.ref);return`<button class="hymn-card" type="button" data-hymn-index="${i}" aria-label="Open complete lyrics for ${escapeHtml(h.title)}"><span class="eyebrow">Complete Hymn · Stored Here</span><strong><u>${escapeHtml(h.title)}</u></strong><cite>${escapeHtml(h.ref)} KJV</cite><blockquote class="hymn-scripture-preview notranslate" translate="no">“${escapeHtml(passage)}”</blockquote><span>Click to open all hymn verses →</span></button>`}).join('');
+  const remote=catalog.map(h=>`<a class="hymn-card hymn-source-card" href="${escapeHtml(h.source)}" target="_blank" rel="noopener noreferrer"><span class="eyebrow">Public Domain Catalogue</span><strong><u>${escapeHtml(h.title)}</u></strong><cite>${escapeHtml(h.credit||'Hymns To God public-domain list')}</cite><span>Open public-domain hymn source →</span></a>`).join('');
+  $('#hymn-list').innerHTML=(local+remote)||'<div class="no-hymns"><h2>No matching hymn found.</h2><p>Try another title or theme.</p></div>';
+  $$('.hymn-card[data-hymn-index]').forEach(b=>b.addEventListener('click',()=>openHymnByIndex(Number(b.dataset.hymnIndex))));
+}
 function openHymnByIndex(index){const h=HYMNS[index];if(h)openHymn(h.title)}
 function executeHymnSearch(){renderHymns();$('#hymn-list').scrollIntoView({behavior:'smooth',block:'start'})}
 function searchHymnsOnWeb(){const q=$('#hymn-search').value.trim(),s=$('#hymn-scripture').value.trim(),theme=$('#hymn-filter').value==='all'?'':$('#hymn-filter').selectedOptions[0].textContent;const terms=[q,theme,s,'Christian hymn complete lyrics public domain'].filter(Boolean).join(' ');window.open(`https://www.google.com/search?q=${encodeURIComponent(terms)}`,'_blank','noopener,noreferrer')}
@@ -244,7 +262,7 @@ async function init(){
   }
 
   try{events()}catch(e){console.error('events',e)}
-  try{initHymnSearch()}catch(e){console.error('hymns',e)}
+  try{initHymnSearch();loadPublicDomainHymnCatalog()}catch(e){console.error('hymns',e)}
   try{initDevotionals()}catch(e){console.error('devotionals',e)}
   try{initFinance()}catch(e){console.error('finance',e)}
   try{initTodos()}catch(e){console.error('todos',e)}
