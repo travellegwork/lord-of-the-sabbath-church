@@ -43,7 +43,14 @@ function soapMarkup(kind,title,ref){const id=kind.toLowerCase();return `<section
 async function translate(text,lang){if(lang==='en'||!text)return text;const key=`lotstr:${lang}:${text}`;try{const cached=localStorage.getItem(key);if(cached)return cached}catch{}const url=`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${encodeURIComponent(lang)}&dt=t&q=${encodeURIComponent(text)}`;try{const r=await fetch(url);if(!r.ok)throw Error();const data=await r.json(),out=(data[0]||[]).map(x=>x[0]||'').join('');if(!out)throw Error();try{localStorage.setItem(key,out)}catch{}return out}catch{return 'Translation is temporarily unavailable. The English KJV remains available.'}}
 async function translateInto(source,target,lang){const el=$(target);if(!el)return;el.textContent=lang==='en'?'English is shown in the KJV panel.':'Translating the exact KJV text…';el.textContent=await translate($(source)?.textContent||'',lang)}
 async function translateInterface(lang){const nodes=[];const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,{acceptNode(n){if(!n.nodeValue.trim()||n.parentElement?.closest('.notranslate,[id$="-tr"],#chapter-tr,script,style,textarea,option'))return NodeFilter.FILTER_REJECT;return NodeFilter.FILTER_ACCEPT}});let node;while(node=walker.nextNode()){if(!ORIGINAL_TEXT.has(node))ORIGINAL_TEXT.set(node,node.nodeValue);nodes.push(node)}const attrs=$$('input[placeholder],textarea[placeholder]');attrs.forEach(e=>{if(!ORIGINAL_PLACEHOLDER.has(e))ORIGINAL_PLACEHOLDER.set(e,e.placeholder)});if(lang==='en'){nodes.forEach(n=>n.nodeValue=ORIGINAL_TEXT.get(n));attrs.forEach(e=>e.placeholder=ORIGINAL_PLACEHOLDER.get(e));return}await Promise.all(nodes.map(async n=>{const original=ORIGINAL_TEXT.get(n),left=original.match(/^\s*/)[0],right=original.match(/\s*$/)[0];n.nodeValue=left+await translate(original.trim(),lang)+right}));await Promise.all(attrs.map(async e=>e.placeholder=await translate(ORIGINAL_PLACEHOLDER.get(e),lang)))}
-async function applyInterfaceLanguage(lang){document.documentElement.lang='en';try{localStorage.setItem('lots-language',lang)}catch{}await refreshTranslations(lang)}
+async function applyInterfaceLanguage(lang){
+ document.documentElement.lang=lang==='en'?'en':lang;
+ try{localStorage.setItem('lots-language',lang)}catch{}
+ /* Translate normal interface/content (including Home hero and SOAP instructions).
+    KJV source panels stay English because they are marked .notranslate. */
+ await translateInterface(lang);
+ await refreshTranslations(lang);
+}
 async function refreshTranslations(lang){const name=LANG[lang];['day','night','motto','reader'].forEach(k=>{const e=$(`#${k}-lang`);if(e)e.textContent=lang==='en'?'English':`${name} · translated from KJV`});await Promise.all([translateInto('#day-en','#day-tr',lang),translateInto('#night-en','#night-tr',lang),translateInto('#motto-en','#motto-tr',lang),renderReaderTranslation(lang)]);if(mode==='chapter')renderFullChapter(lang);renderHymns()}
 
 function getVerse(b,c,v){return clean((bible&&bible[`${b} ${c}:${v}`])||'')}
