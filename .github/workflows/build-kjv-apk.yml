@@ -27,7 +27,7 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
-          import base64, re, zipfile
+          import base64, os, re, zipfile
           parts = sorted(Path("tmp-kjv-build").glob("v03-patch.b64.part*"))
           if len(parts) != 2:
               raise SystemExit(f"Expected 2 v0.3 patch parts, found {len(parts)}")
@@ -35,13 +35,14 @@ jobs:
           clean = re.sub(r"[^A-Za-z0-9+/=]", "", text)
           clean += "=" * ((4 - len(clean) % 4) % 4)
           raw = base64.b64decode(clean, validate=False)
-          out = Path("/tmp/v03-patch.zip")
+          runner_temp = Path(os.environ["RUNNER_TEMP"])
+          out = runner_temp / "v03-patch.zip"
           out.write_bytes(raw)
           with zipfile.ZipFile(out) as z:
               bad = z.testzip()
               if bad:
                   raise SystemExit(f"Corrupt ZIP member: {bad}")
-              z.extractall("/tmp/kjv-src/kjv_holy_bible")
+              z.extractall(runner_temp / "kjv-src" / "kjv_holy_bible")
               print(f"Applied v0.3 patch: {len(z.namelist())} files, {len(raw)} bytes")
           PY
 
