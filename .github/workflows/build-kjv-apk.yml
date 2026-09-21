@@ -45,6 +45,10 @@ jobs:
               print(f"Applied v0.3 patch: {len(z.namelist())} files, {len(raw)} bytes")
           PY
 
+      - name: Generate public-domain instrumental audio
+        working-directory: ${{ runner.temp }}/kjv-src/kjv_holy_bible
+        run: python tool/generate_audio.py
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
@@ -87,10 +91,6 @@ jobs:
       - name: Bundle complete KJV corpus and formatting markers
         working-directory: ${{ runner.temp }}/kjv-src/kjv_holy_bible
         run: python tool/fetch_kjv.py
-
-      - name: Generate public-domain instrumental audio
-        working-directory: ${{ runner.temp }}/kjv-src/kjv_holy_bible
-        run: python tool/generate_audio.py
 
       - name: Install Flutter dependencies
         working-directory: ${{ runner.temp }}/kjv-src/kjv_holy_bible
