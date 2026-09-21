@@ -58,7 +58,39 @@
 <section id="give" class="page" data-title="Give"><header class="banner"><p class="eyebrow">Freely ye have received, freely give</p><h1>Support the Ministry</h1></header><section class="pad prose"><p>Donations help keep Bible reading, translation and SOAP journalling available worldwide.</p><button id="donate" class="btn gold">Donate to Help Keep This Ministry Online</button><p id="donate-status" class="status"></p></section></section>
 </main>
 <footer><div class="brand"><span class="seal">LS</span><span><b>Lord of the Sabbath Church</b><small>JESUS CHRIST IS LORD</small></span></div><p>“For the Son of man is Lord even of the sabbath day.”</p><p>© <span id="year"></span> Lord of the Sabbath Church</p></footer>
-<script src="script.js?v=20260922-11"></script>
+<script>
+/* Core navigation/landing safety layer: works even if optional site modules fail. */
+(function(){
+  function showPage(id){
+    var target=document.getElementById(id);
+    var page=target&&target.classList.contains('page')?target:document.getElementById('home');
+    document.querySelectorAll('.page').forEach(function(p){p.classList.toggle('active',p===page)});
+    document.querySelectorAll('#nav a').forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+page.id)});
+    var nav=document.getElementById('nav'); if(nav)nav.classList.remove('open');
+    var menu=document.querySelector('.menu'); if(menu)menu.setAttribute('aria-expanded','false');
+    if(id==='day-section'||id==='night-section'){setTimeout(function(){var el=document.getElementById(id);if(el)el.scrollIntoView({block:'start'})},0)}
+    else window.scrollTo(0,0);
+  }
+  window.addEventListener('hashchange',function(){showPage(location.hash.slice(1)||'home')});
+  document.addEventListener('DOMContentLoaded',function(){
+    document.querySelectorAll('#nav a').forEach(function(a){a.addEventListener('click',function(){setTimeout(function(){showPage(location.hash.slice(1)||'home')},0)})});
+    var hash=location.hash.slice(1);
+    if(hash && hash!=='home'){showPage(hash);return}
+    var h=new Date().getHours(),target=(h>=6&&h<18)?'day-section':'night-section';
+    history.replaceState(null,'','#'+target);showPage(target);
+    fetch('assets/kjv-1769.json?v=20260922-1',{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error();return r.json()}).then(function(db){
+      ['day','night'].forEach(function(k){
+        var cite=document.querySelector('#'+k+'-section cite'),out=document.getElementById(k+'-en');
+        if(!cite||!out)return;
+        var ref=cite.textContent.replace(/\s*KJV\s*$/,'').trim();
+        var val=db[ref];
+        if(val)out.textContent='“'+String(val).replace(/^#\s*/,'').replace(/\[([^\]]+)\]/g,'$1').trim()+'”';
+      });
+    }).catch(function(){});
+  });
+})();
+</script>
+<script src="script.js?v=20260922-12"></script>
 <script>function googleTranslateElementInit(){new google.translate.TranslateElement({pageLanguage:'en',includedLanguages:'en,tl,ceb,es',autoDisplay:false},'google_translate_element')}</script>
 <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async></script>
 </body></html>
