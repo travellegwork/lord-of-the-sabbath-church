@@ -130,13 +130,20 @@ function initPrayerReader(){
 }
 
 function scrollToDailyVerse(target){
-  setTimeout(()=>document.getElementById(target)?.scrollIntoView({behavior:'auto',block:'start'}),350);
+  const go=()=>document.getElementById(target)?.scrollIntoView({behavior:'auto',block:'start'});
+  // Run twice so mobile browsers cannot restore the old/home scroll position after our first jump.
+  setTimeout(go,120);
+  setTimeout(go,900);
 }
 function autoScrollDailyVerse(){
   // A normal site opening, including #home, lands on the appropriate daily verse.
   // Deliberate deep links such as #bible, #hymns or #prayer-reader remain untouched.
   const hash=location.hash.slice(1);
-  if(hash&&hash!=='home')return;
+  // Only a real, deliberate top-level page link should override the daily landing.
+  // Unknown hashes injected by browsers, translators or shared links must not strand visitors on Home.
+  const requestedPage=hash&&document.getElementById(hash);
+  if(hash&&hash!=='home'&&requestedPage?.classList.contains('page'))return;
+  if('scrollRestoration' in history)history.scrollRestoration='manual';
   const now=new Date(),hour=now.getHours();
   const fallbackTarget=hour>=6&&hour<18?'day-section':'night-section';
   const useFallback=()=>scrollToDailyVerse(fallbackTarget);
