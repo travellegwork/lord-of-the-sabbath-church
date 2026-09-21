@@ -46,7 +46,7 @@ async function translateInterface(lang){const nodes=[];const walker=document.cre
 async function applyInterfaceLanguage(lang){document.documentElement.lang=lang==='en'?'en':lang;await translateInterface(lang);await refreshTranslations(lang)}
 async function refreshTranslations(lang){const name=LANG[lang];['day','night','motto','reader'].forEach(k=>{const e=$(`#${k}-lang`);if(e)e.textContent=lang==='en'?'English':`${name} · translated from KJV`});await Promise.all([translateInto('#day-en','#day-tr',lang),translateInto('#night-en','#night-tr',lang),translateInto('#motto-en','#motto-tr',lang),renderReaderTranslation(lang)]);if(mode==='chapter')renderFullChapter(lang);renderHymns()}
 
-function getVerse(b,c,v){return clean(bible[`${b} ${c}:${v}`])}
+function getVerse(b,c,v){return clean((bible&&bible[`${b} ${c}:${v}`])||'')}
 function verseCount(b,c){let n=0;while(n<200&&getVerse(b,c,n+1))n++;return n}
 function populateBooks(){const s=$('#book-select');Object.keys(BOOKS).forEach(b=>s.add(new Option(b,b)));s.value=book;populateChapters()}
 function populateChapters(){const s=$('#chapter-select');s.innerHTML='';for(let i=1;i<=BOOKS[book];i++)s.add(new Option(i,i));s.value=chapter;populateVerses()}
@@ -178,5 +178,26 @@ function autoScrollDailyVerse(){
     }catch{useFallback()}
   },()=>{clearTimeout(timer);useFallback()},{timeout:4500,maximumAge:21600000});
 }
-async function init(){try{const r=await fetch('assets/kjv-1769.json');if(!r.ok)throw Error();bible=await r.json()}catch{$('#daily-mount').innerHTML='<p class="error">The Bible data could not be loaded. Please refresh.</p>';return}buildStatic();if(today.event===EVENTS.atonement)$('#daily-mount').insertAdjacentHTML('afterbegin',feastFeature());populateBooks();renderSingle();events();initHymnSearch();initDevotionals();initFinance();initTodos();initPrayerReader();loadPrivateData();window.addEventListener('keydown',e=>{if(e.key==='Escape')closeHymn()});route();autoScrollDailyVerse();$('#year').textContent=new Date().getFullYear();setTimeout(()=>{const c=$('.goog-te-combo');if(c)c.setAttribute('aria-label','Google website translation')},2500)}
+async function init(){
+  // Render navigation, Day/Night SOAP and Prayer Reader even if the large KJV data file
+  // is slow or temporarily unavailable. The landing page must never depend on that fetch.
+  let bibleLoaded=false;
+  try{
+    const r=await fetch('assets/kjv-1769.json',{cache:'no-store'});
+    if(r.ok){bible=await r.json();bibleLoaded=true}
+  }catch{}
+  buildStatic();
+  if(today.event===EVENTS.atonement)$('#daily-mount').insertAdjacentHTML('afterbegin',feastFeature());
+  if(bibleLoaded){populateBooks();renderSingle()}
+  else{
+    const mount=$('#daily-mount');
+    mount?.insertAdjacentHTML('afterbegin','<p class="error">The KJV Bible reader data is temporarily unavailable. Daily study tools and Prayer Reader remain available.</p>');
+  }
+  events();initHymnSearch();initDevotionals();initFinance();initTodos();initPrayerReader();loadPrivateData();
+  window.addEventListener('keydown',e=>{if(e.key==='Escape')closeHymn()});
+  route();
+  autoScrollDailyVerse();
+  $('#year').textContent=new Date().getFullYear();
+  setTimeout(()=>{const c=$('.goog-te-combo');if(c)c.setAttribute('aria-label','Google website translation')},2500)
+}
 init();
