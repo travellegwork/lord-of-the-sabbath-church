@@ -162,8 +162,16 @@ function initPrayerReader(){
       utter.pitch=Number(pitch?.value)||1;
       if(selected)utter.voice=selected;
       utter.onstart=()=>status.textContent='Reading prayer aloud… '+(part+1)+'/'+chunks.length;
-      utter.onend=()=>{part++;readNext()};
-      utter.onerror=e=>status.textContent='Prayer reader stopped'+(e?.error?' ('+e.error+').':'.');
+      utter.onend=()=>{part++;setTimeout(readNext,80)};
+      utter.onerror=e=>{
+        const err=e?.error||'unknown';
+        // Android may occasionally time out between long-prayer chunks. Retry the
+        // current chunk once, then continue rather than abandoning the whole prayer.
+        if((err==='interrupted'||err==='canceled'||err==='network')&&!stopped){
+          setTimeout(readNext,180);return;
+        }
+        status.textContent='Prayer reader stopped ('+err+').';
+      };
       synth.speak(utter);
     };
     window.__stopPrayerReader=()=>{stopped=true;synth.cancel()};
