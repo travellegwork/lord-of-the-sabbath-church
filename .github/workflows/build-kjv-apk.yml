@@ -1,13 +1,12 @@
-name: Build KJV Android APK
+name: Export KJV v0.3 Source
 
 on:
   push:
     branches:
       - build-kjv-apk
-  workflow_dispatch:
 
 jobs:
-  build-apk:
+  export-source:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout build branch
@@ -29,8 +28,6 @@ jobs:
           from pathlib import Path
           import base64, os, re, zipfile
           parts = sorted(Path("tmp-kjv-build").glob("v03-patch.b64.part*"))
-          if len(parts) != 2:
-              raise SystemExit(f"Expected 2 v0.3 patch parts, found {len(parts)}")
           text = "".join(p.read_text(encoding="utf-8") for p in parts)
           clean = re.sub(r"[^A-Za-z0-9+/=]", "", text)
           clean += "=" * ((4 - len(clean) % 4) % 4)
@@ -39,79 +36,12 @@ jobs:
           out = runner_temp / "v03-patch.zip"
           out.write_bytes(raw)
           with zipfile.ZipFile(out) as z:
-              bad = z.testzip()
-              if bad:
-                  raise SystemExit(f"Corrupt ZIP member: {bad}")
               z.extractall(runner_temp / "kjv-src" / "kjv_holy_bible")
-              print(f"Applied v0.3 patch: {len(z.namelist())} files, {len(raw)} bytes")
           PY
 
-      - name: Generate public-domain instrumental audio
-        working-directory: ${{ runner.temp }}/kjv-src/kjv_holy_bible
-        run: python tool/generate_audio.py
-
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          cache: true
-
-      - name: Generate Android project
-        working-directory: ${{ runner.temp }}/kjv-src/kjv_holy_bible
-        run: flutter create --platforms=android --org org.lordofthesabbath --project-name kjv_holy_bible .
-
-      - name: Configure Android API 36
-        working-directory: ${{ runner.temp }}/kjv-src/kjv_holy_bible
-        run: python tool/configure_android.py
-
-      - name: Allow Android TTS service discovery
-        working-directory: ${{ runner.temp }}/kjv-src/kjv_holy_bible
-        shell: bash
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          p = Path("android/app/src/main/AndroidManifest.xml")
-          s = p.read_text()
-          if "android.intent.action.TTS_SERVICE" not in s:
-              queries = """    <queries>
-                  <intent>
-                      <action android:name="android.intent.action.TTS_SERVICE" />
-                  </intent>
-              </queries>
-          """
-              s = s.replace("</manifest>", queries + "</manifest>")
-              p.write_text(s)
-          PY
-
-      - name: Bundle complete KJV corpus and formatting markers
-        working-directory: ${{ runner.temp }}/kjv-src/kjv_holy_bible
-        run: python tool/fetch_kjv.py
-
-      - name: Install Flutter dependencies
-        working-directory: ${{ runner.temp }}/kjv-src/kjv_holy_bible
-        run: flutter pub get
-
-      - name: Build release APK
-        working-directory: ${{ runner.temp }}/kjv-src/kjv_holy_bible
-        run: flutter build apk --release
-
-      - name: Prepare APK
-        shell: bash
-        run: |
-          cp "$RUNNER_TEMP/kjv-src/kjv_holy_bible/build/app/outputs/flutter-apk/app-release.apk" "$RUNNER_TEMP/KJV-Holy-Bible-v0.3.apk"
-          sha256sum "$RUNNER_TEMP/KJV-Holy-Bible-v0.3.apk" > "$RUNNER_TEMP/KJV-Holy-Bible-v0.3.apk.sha256"
-
-      - name: Upload installable APK
+      - name: Upload reconstructed source
         uses: actions/upload-artifact@v4
         with:
-          name: KJV-Holy-Bible-v0.3-Android-APK
-          path: |
-            ${{ runner.temp }}/KJV-Holy-Bible-v0.3.apk
-            ${{ runner.temp }}/KJV-Holy-Bible-v0.3.apk.sha256
-          retention-days: 7
+          name: KJV-v0.3-source
+          path: ${{ runner.temp }}/kjv-src/kjv_holy_bible
+          retention-days: 2
