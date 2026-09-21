@@ -72,3 +72,10 @@
   #nav{display:none!important}
 }
 @media(min-width:1101px){.mobile-nav{display:none!important}}
+
+/* Mobile navigation visibility correction: header previously clipped its dropdown. */
+@media(max-width:760px){
+  .topbar{overflow:visible!important}
+  .mobile-nav{overflow:visible!important}
+  .mobile-nav-panel{z-index:99999!important}
+}
