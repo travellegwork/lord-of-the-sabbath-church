@@ -72,15 +72,14 @@
     document.querySelectorAll('.page').forEach(function(p){p.classList.toggle('active',p===page)});
     document.querySelectorAll('#nav a').forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+page.id)});
     var nav=document.getElementById('nav'); if(nav)nav.classList.remove('open');
-    var menu=document.querySelector('.menu'); if(menu)menu.setAttribute('aria-expanded','false');
     if(id==='day-section'||id==='night-section'){setTimeout(function(){var el=document.getElementById(id);if(el)el.scrollIntoView({block:'start'})},0)}
     else window.scrollTo(0,0);
   }
   window.addEventListener('hashchange',function(){showPage(location.hash.slice(1)||'home')});
   document.addEventListener('DOMContentLoaded',function(){
-    var menu=document.querySelector('.menu'),nav=document.getElementById('nav');
-    if(menu&&nav){menu.addEventListener('click',function(e){e.preventDefault();var open=nav.classList.toggle('open');menu.setAttribute('aria-expanded',open?'true':'false')})}
-    document.querySelectorAll('#nav a').forEach(function(a){a.addEventListener('click',function(){if(nav)nav.classList.remove('open');if(menu)menu.setAttribute('aria-expanded','false');setTimeout(function(){showPage(location.hash.slice(1)||'home')},0)})});
+    var nav=document.getElementById('nav');
+    document.querySelectorAll('#nav a').forEach(function(a){a.addEventListener('click',function(){if(nav)nav.classList.remove('open');setTimeout(function(){showPage(location.hash.slice(1)||'home')},0)})});
+    document.querySelectorAll('.mobile-nav-panel a').forEach(function(a){a.addEventListener('click',function(){var d=a.closest('details');if(d)d.removeAttribute('open');setTimeout(function(){showPage(location.hash.slice(1)||'home')},0)})});
     var hash=location.hash.slice(1);
     if(hash && hash!=='home'){showPage(hash);return}
     var h=new Date().getHours(),target=(h>=6&&h<18)?'day-section':'night-section';
@@ -97,7 +96,7 @@
   });
 })();
 </script>
-<script src="script.js?v=20260922-13"></script>
+<script src="script.js?v=20260922-14"></script>
 <script>function googleTranslateElementInit(){new google.translate.TranslateElement({pageLanguage:'en',includedLanguages:'en,tl,ceb,es',autoDisplay:false},'google_translate_element')}</script>
 <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async></script>
 </body></html>
