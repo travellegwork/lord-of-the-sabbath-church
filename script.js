@@ -133,27 +133,34 @@ function scrollToDailyVerse(target){
   setTimeout(()=>document.getElementById(target)?.scrollIntoView({behavior:'auto',block:'start'}),350);
 }
 function autoScrollDailyVerse(){
-  // Respect explicit shared/deep links. Automatic landing applies only to a plain site visit.
-  if(location.hash)return;
+  // A normal site opening, including #home, lands on the appropriate daily verse.
+  // Deliberate deep links such as #bible, #hymns or #prayer-reader remain untouched.
+  const hash=location.hash.slice(1);
+  if(hash&&hash!=='home')return;
   const now=new Date(),hour=now.getHours();
-  // Verse of the Night always begins at 6 PM. Before 6 AM it remains the night verse
-  // unless sunrise for the visitor's location has already occurred.
+  const fallbackTarget=hour>=6&&hour<18?'day-section':'night-section';
+  const useFallback=()=>scrollToDailyVerse(fallbackTarget);
+
+  // Verse of the Night always begins at 6 PM. After 6 AM, Day is the defined fallback
+  // for polar day/night or when sunrise data/location is unavailable.
   if(hour>=18){scrollToDailyVerse('night-section');return}
   if(hour>=6){scrollToDailyVerse('day-section');return}
-  if(!navigator.geolocation){scrollToDailyVerse('night-section');return}
-  const fallback=setTimeout(()=>scrollToDailyVerse('night-section'),4500);
+  if(!navigator.geolocation){useFallback();return}
+
+  const timer=setTimeout(useFallback,5000);
   navigator.geolocation.getCurrentPosition(async pos=>{
-    clearTimeout(fallback);
+    clearTimeout(timer);
     try{
       const {latitude,longitude}=pos.coords;
-      const date=now.toISOString().slice(0,10);
-      const r=await fetch(`https://api.sunrise-sunset.org/json?lat=${latitude}&lng=${longitude}&date=${date}&formatted=0`);
-      const d=await r.json(),sunrise=d?.results?.sunrise;
-      if(!sunrise){scrollToDailyVerse('night-section');return}
-      const sunriseTime=new Date(sunrise);
-      scrollToDailyVerse(now>=sunriseTime?'day-section':'night-section');
-    }catch{scrollToDailyVerse('night-section')}
-  },()=>{clearTimeout(fallback);scrollToDailyVerse('night-section')},{timeout:4000,maximumAge:21600000});
+      const localDate=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+      const r=await fetch(`https://api.sunrise-sunset.org/json?lat=${latitude}&lng=${longitude}&date=${localDate}&formatted=0`);
+      const d=await r.json();
+      const sunrise=d?.results?.sunrise;
+      // Polar day/night and invalid/missing sunrise values explicitly use the 6 AM/6 PM rule.
+      if(d?.status!=='OK'||!sunrise||Number.isNaN(Date.parse(sunrise))){useFallback();return}
+      scrollToDailyVerse(now>=new Date(sunrise)?'day-section':'night-section');
+    }catch{useFallback()}
+  },()=>{clearTimeout(timer);useFallback()},{timeout:4500,maximumAge:21600000});
 }
 async function init(){try{const r=await fetch('assets/kjv-1769.json');if(!r.ok)throw Error();bible=await r.json()}catch{$('#daily-mount').innerHTML='<p class="error">The Bible data could not be loaded. Please refresh.</p>';return}buildStatic();if(today.event===EVENTS.atonement)$('#daily-mount').insertAdjacentHTML('afterbegin',feastFeature());populateBooks();renderSingle();events();initHymnSearch();initDevotionals();initFinance();initTodos();initPrayerReader();loadPrivateData();window.addEventListener('keydown',e=>{if(e.key==='Escape')closeHymn()});route();autoScrollDailyVerse();$('#year').textContent=new Date().getFullYear();setTimeout(()=>{const c=$('.goog-te-combo');if(c)c.setAttribute('aria-label','Google website translation')},2500)}
 init();
