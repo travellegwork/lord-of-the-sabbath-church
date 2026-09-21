@@ -46,9 +46,14 @@ async function translateInterface(lang){const nodes=[];const walker=document.cre
 async function applyInterfaceLanguage(lang){
  document.documentElement.lang=lang==='en'?'en':lang;
  try{localStorage.setItem('lots-language',lang)}catch{}
- /* Translate normal interface/content (including Home hero and SOAP instructions).
-    KJV source panels stay English because they are marked .notranslate. */
- await translateInterface(lang);
+ /* Use Google's page translator for ordinary interface/content. This avoids hundreds
+    of direct translation requests that can be rate-limited and overwrite the page
+    with an error message. KJV source panels remain protected by notranslate. */
+ const combo=document.querySelector('.goog-te-combo');
+ if(combo){
+   const googleLang=lang==='tl'?'tl':lang;
+   if(combo.value!==googleLang){combo.value=googleLang;combo.dispatchEvent(new Event('change'))}
+ }
  await refreshTranslations(lang);
 }
 async function refreshTranslations(lang){const name=LANG[lang];['day','night','motto','reader'].forEach(k=>{const e=$(`#${k}-lang`);if(e)e.textContent=lang==='en'?'English':`${name} · translated from KJV`});await Promise.all([translateInto('#day-en','#day-tr',lang),translateInto('#night-en','#night-tr',lang),translateInto('#motto-en','#motto-tr',lang),renderReaderTranslation(lang)]);if(mode==='chapter')renderFullChapter(lang);renderHymns()}
@@ -293,7 +298,7 @@ async function init(){
 
   try{events()}catch(e){console.error('events',e)}
   try{initHymnSearch();loadPublicDomainHymnCatalog()}catch(e){console.error('hymns',e)}
-  try{const savedLang=localStorage.getItem('lots-language')||'en',sel=$('#site-language');if(sel&&[...sel.options].some(o=>o.value===savedLang)){sel.value=savedLang;await applyInterfaceLanguage(savedLang)}}catch(e){console.error('language restore',e)}
+  try{const savedLang=localStorage.getItem('lots-language')||'en',sel=$('#site-language');if(sel&&[...sel.options].some(o=>o.value===savedLang)){sel.value=savedLang;setTimeout(()=>applyInterfaceLanguage(savedLang),700);await refreshTranslations(savedLang)}}catch(e){console.error('language restore',e)}
   try{initDevotionals()}catch(e){console.error('devotionals',e)}
   try{initFinance()}catch(e){console.error('finance',e)}
   try{initTodos()}catch(e){console.error('todos',e)}
