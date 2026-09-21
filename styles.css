@@ -90,3 +90,6 @@
 .finance-language-panel{min-width:0}.finance-language-panel[hidden]{display:none!important}
 .finance-translation-note{margin:1rem clamp(1rem,3vw,3rem) 0;padding:.8rem 1rem;border:1px solid #dbe1e8;border-radius:12px;background:#fff;font-size:.9rem}
 @media(max-width:900px){.finance-bilingual{grid-template-columns:1fr}.finance-language-panel:first-child{order:1}#financial-tr{order:2}}
+
+/* Site-wide bilingual tabs */
+.page.bilingual-page.active{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1rem;align-items:start}.bilingual-source,.bilingual-translation{min-width:0}.bilingual-translation{border-left:1px solid #dbe1e8}.bilingual-translation[hidden]{display:none!important}.bilingual-loading{margin:1rem;padding:1rem;border:1px solid #dbe1e8;border-radius:12px;background:#fff}.translated-control-label{display:inline-block;font-weight:600;margin:.25rem 0}@media(max-width:900px){.page.bilingual-page.active{grid-template-columns:1fr}.bilingual-source{order:1}.bilingual-translation{order:2;border-left:0;border-top:1px solid #dbe1e8}}
