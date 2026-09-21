@@ -1,0 +1,70 @@
+name: Build KJV Android APK
+
+on:
+  push:
+    branches:
+      - build-kjv-apk
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout build branch
+        uses: actions/checkout@v4
+
+      - name: Restore KJV source ZIP
+        shell: bash
+        run: |
+          cat tmp-kjv-build/KJV-Holy-Bible-MVP.zip.b64.part* > "$RUNNER_TEMP/kjv.zip.b64"
+          base64 -d "$RUNNER_TEMP/kjv.zip.b64" > "$RUNNER_TEMP/kjv.zip"
+          mkdir -p "$RUNNER_TEMP/kjv-src"
+          unzip -q "$RUNNER_TEMP/kjv.zip" -d "$RUNNER_TEMP/kjv-src"
+          test -f "$RUNNER_TEMP/kjv-src/kjv_holy_bible/pubspec.yaml"
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Generate Android project
+        working-directory: ${{ runner.temp }}/kjv-src/kjv_holy_bible
+        run: flutter create --platforms=android --org org.lordofthesabbath --project-name kjv_holy_bible .
+
+      - name: Configure Android API 36
+        working-directory: ${{ runner.temp }}/kjv-src/kjv_holy_bible
+        run: python tool/configure_android.py
+
+      - name: Bundle complete KJV corpus
+        working-directory: ${{ runner.temp }}/kjv-src/kjv_holy_bible
+        run: python tool/fetch_kjv.py
+
+      - name: Install Flutter dependencies
+        working-directory: ${{ runner.temp }}/kjv-src/kjv_holy_bible
+        run: flutter pub get
+
+      - name: Build release APK
+        working-directory: ${{ runner.temp }}/kjv-src/kjv_holy_bible
+        run: flutter build apk --release
+
+      - name: Prepare APK
+        shell: bash
+        run: |
+          cp "$RUNNER_TEMP/kjv-src/kjv_holy_bible/build/app/outputs/flutter-apk/app-release.apk" "$RUNNER_TEMP/KJV-Holy-Bible.apk"
+          sha256sum "$RUNNER_TEMP/KJV-Holy-Bible.apk" > "$RUNNER_TEMP/KJV-Holy-Bible.apk.sha256"
+
+      - name: Upload installable APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: KJV-Holy-Bible-Android-APK
+          path: |
+            ${{ runner.temp }}/KJV-Holy-Bible.apk
+            ${{ runner.temp }}/KJV-Holy-Bible.apk.sha256
+          retention-days: 7
