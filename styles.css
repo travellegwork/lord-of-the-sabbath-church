@@ -79,3 +79,6 @@
   .mobile-nav{overflow:visible!important}
   .mobile-nav-panel{z-index:99999!important}
 }
+
+.voice-preview{margin-top:.45rem;width:max-content;max-width:100%}
+@media(max-width:760px){.voice-preview{width:100%}}
