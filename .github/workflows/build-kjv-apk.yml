@@ -22,6 +22,21 @@ jobs:
           unzip -q "$RUNNER_TEMP/kjv.zip" -d "$RUNNER_TEMP/kjv-src"
           test -f "$RUNNER_TEMP/kjv-src/kjv_holy_bible/pubspec.yaml"
 
+      - name: Patch Bible repository compile issue
+        shell: bash
+        working-directory: ${{ runner.temp }}/kjv-src/kjv_holy_bible
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path("lib/services/bible_repository.dart")
+          s = p.read_text()
+          old = "final data = await chapter(book, chapter);"
+          new = "final data = await this.chapter(book, chapter);"
+          if old not in s:
+              raise SystemExit("Expected compile-fix line not found")
+          p.write_text(s.replace(old, new, 1))
+          PY
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
