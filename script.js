@@ -293,7 +293,7 @@ async function init(){
 
   try{events()}catch(e){console.error('events',e)}
   try{initHymnSearch();loadPublicDomainHymnCatalog()}catch(e){console.error('hymns',e)}
-  try{const savedLang=localStorage.getItem('lots-language')||'en',sel=$('#site-language');if(sel&&[...sel.options].some(o=>o.value===savedLang)){sel.value=savedLang;refreshTranslations(savedLang)}}catch(e){console.error('language restore',e)}
+  try{const savedLang=localStorage.getItem('lots-language')||'en',sel=$('#site-language');if(sel&&[...sel.options].some(o=>o.value===savedLang)){sel.value=savedLang;await applyInterfaceLanguage(savedLang)}}catch(e){console.error('language restore',e)}
   try{initDevotionals()}catch(e){console.error('devotionals',e)}
   try{initFinance()}catch(e){console.error('finance',e)}
   try{initTodos()}catch(e){console.error('todos',e)}
