@@ -82,3 +82,5 @@
 
 .voice-preview{margin-top:.45rem;width:max-content;max-width:100%}
 @media(max-width:760px){.voice-preview{width:100%}}
+
+.hymn-source-card{text-decoration:none;color:inherit}.hymn-source-card:hover,.hymn-source-card:focus-visible{transform:translateY(-2px)}
