@@ -22,20 +22,12 @@ jobs:
           unzip -q "$RUNNER_TEMP/kjv.zip" -d "$RUNNER_TEMP/kjv-src"
           test -f "$RUNNER_TEMP/kjv-src/kjv_holy_bible/pubspec.yaml"
 
-      - name: Patch Bible repository compile issue
+      - name: Apply feature update
         shell: bash
-        working-directory: ${{ runner.temp }}/kjv-src/kjv_holy_bible
         run: |
-          python - <<'PY'
-          from pathlib import Path
-          p = Path("lib/services/bible_repository.dart")
-          s = p.read_text()
-          old = "final data = await chapter(book, chapter);"
-          new = "final data = await this.chapter(book, chapter);"
-          if old not in s:
-              raise SystemExit("Expected compile-fix line not found")
-          p.write_text(s.replace(old, new, 1))
-          PY
+          cat tmp-kjv-build/feature-patch.b64.part* > "$RUNNER_TEMP/feature-patch.b64"
+          base64 -d "$RUNNER_TEMP/feature-patch.b64" > "$RUNNER_TEMP/feature-patch.zip"
+          unzip -oq "$RUNNER_TEMP/feature-patch.zip" -d "$RUNNER_TEMP/kjv-src/kjv_holy_bible"
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -57,6 +49,25 @@ jobs:
         working-directory: ${{ runner.temp }}/kjv-src/kjv_holy_bible
         run: python tool/configure_android.py
 
+      - name: Allow Android TTS service discovery
+        working-directory: ${{ runner.temp }}/kjv-src/kjv_holy_bible
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path("android/app/src/main/AndroidManifest.xml")
+          s = p.read_text()
+          if "android.intent.action.TTS_SERVICE" not in s:
+              queries = """    <queries>
+                  <intent>
+                      <action android:name="android.intent.action.TTS_SERVICE" />
+                  </intent>
+              </queries>
+          """
+              s = s.replace("</manifest>", queries + "</manifest>")
+              p.write_text(s)
+          PY
+
       - name: Bundle complete KJV corpus
         working-directory: ${{ runner.temp }}/kjv-src/kjv_holy_bible
         run: python tool/fetch_kjv.py
@@ -72,14 +83,14 @@ jobs:
       - name: Prepare APK
         shell: bash
         run: |
-          cp "$RUNNER_TEMP/kjv-src/kjv_holy_bible/build/app/outputs/flutter-apk/app-release.apk" "$RUNNER_TEMP/KJV-Holy-Bible.apk"
-          sha256sum "$RUNNER_TEMP/KJV-Holy-Bible.apk" > "$RUNNER_TEMP/KJV-Holy-Bible.apk.sha256"
+          cp "$RUNNER_TEMP/kjv-src/kjv_holy_bible/build/app/outputs/flutter-apk/app-release.apk" "$RUNNER_TEMP/KJV-Holy-Bible-v0.2.apk"
+          sha256sum "$RUNNER_TEMP/KJV-Holy-Bible-v0.2.apk" > "$RUNNER_TEMP/KJV-Holy-Bible-v0.2.apk.sha256"
 
       - name: Upload installable APK
         uses: actions/upload-artifact@v4
         with:
-          name: KJV-Holy-Bible-Android-APK
+          name: KJV-Holy-Bible-v0.2-Android-APK
           path: |
-            ${{ runner.temp }}/KJV-Holy-Bible.apk
-            ${{ runner.temp }}/KJV-Holy-Bible.apk.sha256
+            ${{ runner.temp }}/KJV-Holy-Bible-v0.2.apk
+            ${{ runner.temp }}/KJV-Holy-Bible-v0.2.apk.sha256
           retention-days: 7
