@@ -117,7 +117,7 @@ function initHymnSearch(){$('#hymn-search').onkeydown=e=>{if(e.key==='Enter')exe
 function events(){window.addEventListener('hashchange',route);$('#site-language').onchange=e=>applyInterfaceLanguage(e.target.value);$('#book-select').onchange=e=>{book=e.target.value;chapter=verse=1;populateChapters();renderSingle()};$('#chapter-select').onchange=e=>{chapter=+e.target.value;verse=1;populateVerses();renderSingle()};$('#verse-select').onchange=e=>{verse=+e.target.value;renderSingle()};$('#prev-verse').onclick=()=>moveVerse(-1);$('#next-verse').onclick=()=>moveVerse(1);$('#full-chapter').onclick=()=>renderFullChapter();$('#close-chapter').onclick=renderSingle;$('#prev-chapter').onclick=()=>moveChapter(-1);$('#next-chapter').onclick=()=>moveChapter(1);$('#hymn-search').oninput=renderHymns;$('#hymn-filter').onchange=renderHymns;$('#donate').onclick=()=>$('#donate-status').textContent='The secure Flik payment gateway will become available after the ministry’s merchant account and checkout credentials are approved and connected. No payment information has been collected.'}
 
 function initPrayerReader(){
-  const text=$('#prayer-text'),name=$('#prayer-name'),voice=$('#prayer-voice'),rate=$('#prayer-rate'),status=$('#prayer-status'),list=$('#saved-prayer-list');
+  const text=$('#prayer-text'),name=$('#prayer-name'),voice=$('#prayer-voice'),rate=$('#prayer-rate'),pitch=$('#prayer-pitch'),status=$('#prayer-status'),list=$('#saved-prayer-list');
   if(!text)return;
   let utter=null,prayers=[];
   try{prayers=JSON.parse(localStorage.getItem('lots-prayers')||'[]')}catch{prayers=[]}
@@ -141,6 +141,7 @@ function initPrayerReader(){
       if(stopped||part>=chunks.length){if(!stopped)status.textContent='Prayer reading finished.';return}
       utter=new SpeechSynthesisUtterance(chunks[part]);
       utter.rate=Number(rate.value)||1;
+      utter.pitch=Number(pitch?.value)||1;
       if(selected)utter.voice=selected;
       utter.onstart=()=>status.textContent='Reading prayer aloud… '+(part+1)+'/'+chunks.length;
       utter.onend=()=>{part++;readNext()};
@@ -158,6 +159,20 @@ function initPrayerReader(){
   $('#prayer-stop').onclick=()=>{if(synth){if(window.__stopPrayerReader)window.__stopPrayerReader();else synth.cancel();status.textContent='Prayer stopped.'}};
   $('#prayer-restart').onclick=()=>{if(synth){if(window.__stopPrayerReader)window.__stopPrayerReader();else synth.cancel()}speak()};
   rate.oninput=()=>$('#prayer-rate-value').textContent=rate.value+'×';
+  if(pitch)pitch.oninput=()=>$('#prayer-pitch-value').textContent=Number(pitch.value).toFixed(1)+'×';
+  const preview=$('#preview-prayer-voice');
+  if(preview)preview.onclick=()=>{
+    if(!synth||!('SpeechSynthesisUtterance' in window)){status.textContent='Voice preview is not supported by this browser.';return}
+    synth.cancel();
+    const sample=new SpeechSynthesisUtterance('The Lord bless thee, and keep thee.');
+    sample.rate=Number(rate.value)||1;sample.pitch=Number(pitch?.value)||1;
+    const all=synth.getVoices(),selected=voice.value===''?null:all[Number(voice.value)];
+    if(selected)sample.voice=selected;
+    sample.onstart=()=>status.textContent='Previewing '+(selected?selected.name:'device default')+'…';
+    sample.onend=()=>status.textContent='Voice preview finished.';
+    sample.onerror=e=>status.textContent='Voice preview stopped'+(e?.error?' ('+e.error+').':'.');
+    synth.speak(sample);
+  };
   $('#save-prayer').onclick=()=>{const value=text.value.trim();if(!value){status.textContent='Enter a prayer before saving.';return}const title=name.value.trim()||'Saved Prayer '+new Date().toLocaleDateString();prayers.unshift({name:title,text:value,updated:new Date().toISOString()});save();name.value=title;status.textContent='Prayer saved on this device.';render()};
   $('#prayer-search').oninput=render;
   render();
