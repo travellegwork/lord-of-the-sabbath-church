@@ -130,23 +130,33 @@ function initPrayerReader(){
     if(!value){status.textContent='Paste or type a prayer first.';return}
     if(!synth||!('SpeechSynthesisUtterance' in window)){status.textContent='Read aloud is not supported by this browser.';return}
     synth.cancel();
-    utter=new SpeechSynthesisUtterance(value);
-    utter.rate=Number(rate.value)||1;
     const all=synth.getVoices(),selected=voice.value===''?null:all[Number(voice.value)];
-    if(selected)utter.voice=selected;
-    utter.onstart=()=>status.textContent='Reading prayer aloud…';
-    utter.onend=()=>status.textContent='Prayer reading finished.';
-    utter.onerror=e=>status.textContent='Prayer reader stopped'+(e?.error?' ('+e.error+').':'.');
-    // Mobile browsers require speak() to occur synchronously from the user's tap.
-    synth.speak(utter);
+    // Mobile speech engines often reject or silently stop very long utterances.
+    // Read the prayer in short sentence-sized chunks instead.
+    const chunks=(value.match(/[^.!?\n]+[.!?]+|[^.!?\n]+$/g)||[value])
+      .map(x=>x.trim()).filter(Boolean)
+      .flatMap(x=>x.length<=220?[x]:(x.match(/.{1,220}(?:\s|$)/g)||[x]).map(y=>y.trim()).filter(Boolean));
+    let part=0,stopped=false;
+    const readNext=()=>{
+      if(stopped||part>=chunks.length){if(!stopped)status.textContent='Prayer reading finished.';return}
+      utter=new SpeechSynthesisUtterance(chunks[part]);
+      utter.rate=Number(rate.value)||1;
+      if(selected)utter.voice=selected;
+      utter.onstart=()=>status.textContent='Reading prayer aloud… '+(part+1)+'/'+chunks.length;
+      utter.onend=()=>{part++;readNext()};
+      utter.onerror=e=>status.textContent='Prayer reader stopped'+(e?.error?' ('+e.error+').':'.');
+      synth.speak(utter);
+    };
+    window.__stopPrayerReader=()=>{stopped=true;synth.cancel()};
+    readNext();
     setTimeout(()=>{if(synth.paused)synth.resume()},50);
   };
   const render=()=>{const q=($('#prayer-search').value||'').toLowerCase();const rows=prayers.map((p,i)=>({...p,i})).filter(p=>!q||p.name.toLowerCase().includes(q)||p.text.toLowerCase().includes(q));list.innerHTML=rows.length?rows.map(p=>`<article class="saved-prayer"><button class="saved-prayer-open" data-i="${p.i}" type="button"><strong>${escapeHtml(p.name)}</strong><span>${escapeHtml(p.text.slice(0,120))}${p.text.length>120?'…':''}</span></button><button class="saved-prayer-delete" data-i="${p.i}" type="button" aria-label="Delete ${escapeHtml(p.name)}">Delete</button></article>`).join(''):'<p>No saved prayers yet.</p>';document.querySelectorAll('.saved-prayer-open').forEach(b=>b.onclick=()=>{const p=prayers[+b.dataset.i];name.value=p.name;text.value=p.text;text.focus()});document.querySelectorAll('.saved-prayer-delete').forEach(b=>b.onclick=()=>{prayers.splice(+b.dataset.i,1);save();render()})};
   $('#prayer-play').onclick=speak;
   $('#prayer-pause').onclick=()=>{if(synth){synth.pause();status.textContent='Prayer paused.'}};
   $('#prayer-resume').onclick=()=>{if(synth){synth.resume();status.textContent='Prayer resumed.'}};
-  $('#prayer-stop').onclick=()=>{if(synth){synth.cancel();status.textContent='Prayer stopped.'}};
-  $('#prayer-restart').onclick=()=>{if(synth)synth.cancel();speak()};
+  $('#prayer-stop').onclick=()=>{if(synth){if(window.__stopPrayerReader)window.__stopPrayerReader();else synth.cancel();status.textContent='Prayer stopped.'}};
+  $('#prayer-restart').onclick=()=>{if(synth){if(window.__stopPrayerReader)window.__stopPrayerReader();else synth.cancel()}speak()};
   rate.oninput=()=>$('#prayer-rate-value').textContent=rate.value+'×';
   $('#save-prayer').onclick=()=>{const value=text.value.trim();if(!value){status.textContent='Enter a prayer before saving.';return}const title=name.value.trim()||'Saved Prayer '+new Date().toLocaleDateString();prayers.unshift({name:title,text:value,updated:new Date().toISOString()});save();name.value=title;status.textContent='Prayer saved on this device.';render()};
   $('#prayer-search').oninput=render;
