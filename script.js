@@ -42,8 +42,54 @@ function soapMarkup(kind,title,ref){const id=kind.toLowerCase();return `<section
 
 async function translate(text,lang){if(lang==='en'||!text)return text;const key=`lotstr:${lang}:${text}`;try{const cached=localStorage.getItem(key);if(cached)return cached}catch{}const url=`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${encodeURIComponent(lang)}&dt=t&q=${encodeURIComponent(text)}`;try{const r=await fetch(url);if(!r.ok)throw Error();const data=await r.json(),out=(data[0]||[]).map(x=>x[0]||'').join('');if(!out)throw Error();try{localStorage.setItem(key,out)}catch{}return out}catch{return 'Translation is temporarily unavailable. The English KJV remains available.'}}
 async function translateInto(source,target,lang){const el=$(target);if(!el)return;el.textContent=lang==='en'?'English is shown in the KJV panel.':'Translating the exact KJV text…';el.textContent=await translate($(source)?.textContent||'',lang)}
-async function translateInterface(lang){const nodes=[];const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,{acceptNode(n){if(!n.nodeValue.trim()||n.parentElement?.closest('.notranslate,[id$="-tr"],#chapter-tr,script,style,textarea,option'))return NodeFilter.FILTER_REJECT;return NodeFilter.FILTER_ACCEPT}});let node;while(node=walker.nextNode()){if(!ORIGINAL_TEXT.has(node))ORIGINAL_TEXT.set(node,node.nodeValue);nodes.push(node)}const attrs=$$('input[placeholder],textarea[placeholder]');attrs.forEach(e=>{if(!ORIGINAL_PLACEHOLDER.has(e))ORIGINAL_PLACEHOLDER.set(e,e.placeholder)});if(lang==='en'){nodes.forEach(n=>n.nodeValue=ORIGINAL_TEXT.get(n));attrs.forEach(e=>e.placeholder=ORIGINAL_PLACEHOLDER.get(e));return}await Promise.all(nodes.map(async n=>{const original=ORIGINAL_TEXT.get(n),left=original.match(/^\s*/)[0],right=original.match(/\s*$/)[0];n.nodeValue=left+await translate(original.trim(),lang)+right}));await Promise.all(attrs.map(async e=>e.placeholder=await translate(ORIGINAL_PLACEHOLDER.get(e),lang)))}
-async function applyInterfaceLanguage(lang){document.documentElement.lang='en';await refreshTranslations(lang)}
+async function translateInterface(lang){
+ const nodes=[],attrs=[];
+ const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,{acceptNode(n){
+   const p=n.parentElement;
+   if(!n.nodeValue.trim()||p?.closest('.notranslate,.kjv-bilingual,[id$="-tr"],#chapter-tr,script,style,textarea,option'))return NodeFilter.FILTER_REJECT;
+   return NodeFilter.FILTER_ACCEPT
+ }});
+ let node;while(node=walker.nextNode()){if(!ORIGINAL_TEXT.has(node))ORIGINAL_TEXT.set(node,node.nodeValue);nodes.push(node)}
+ $$('input[placeholder],textarea[placeholder]').forEach(e=>{if(!ORIGINAL_PLACEHOLDER.has(e))ORIGINAL_PLACEHOLDER.set(e,e.placeholder);attrs.push(e)});
+ if(lang==='en'){
+   nodes.forEach(n=>{const v=ORIGINAL_TEXT.get(n);if(v!==undefined)n.nodeValue=v});
+   attrs.forEach(e=>{const v=ORIGINAL_PLACEHOLDER.get(e);if(v!==undefined)e.placeholder=v});
+   return
+ }
+ const work=nodes.map(n=>async()=>{const original=ORIGINAL_TEXT.get(n),trim=original.trim();if(!trim)return;const tr=await translate(trim,lang);if(tr&&!tr.startsWith('Translation is temporarily unavailable'))n.nodeValue=original.match(/^\\s*/)[0]+tr+original.match(/\\s*$/)[0]});
+ for(let i=0;i<work.length;i+=4)await Promise.all(work.slice(i,i+4).map(fn=>fn()));
+ for(const e of attrs){const original=ORIGINAL_PLACEHOLDER.get(e),tr=await translate(original,lang);if(tr&&!tr.startsWith('Translation is temporarily unavailable'))e.placeholder=tr}
+}
+async function translateStaticKJV(lang){
+ const blocks=$$('.kjv-bilingual[data-kjv-source]');
+ for(const box of blocks){
+   const source=box.querySelector('.kjv-source'),out=box.querySelector('.kjv-selected'),label=box.querySelector('.kjv-selected-label');
+   if(!source||!out)continue;
+   if(label)label.textContent=lang==='en'?'English KJV shown above':`${LANG[lang]||lang} · translated directly from the English KJV`;
+   if(lang==='en'){out.hidden=true;out.textContent='';continue}
+   out.hidden=false;out.textContent='Translating the English KJV…';
+   const tr=await translate(source.dataset.kjvText||source.textContent,lang);
+   out.textContent=tr&&!tr.startsWith('Translation is temporarily unavailable')?tr:'Translation is temporarily unavailable. The English KJV remains above.'
+ }
+}
+function prepareStaticKJV(){
+ const candidates=[...document.querySelectorAll('blockquote,.hero-verse,.banner p')];
+ candidates.forEach(el=>{
+   if(el.closest('.kjv-bilingual,.verse-pair,#single-reading,#chapter-reading,.devotional-bilingual'))return;
+   const text=el.textContent.trim();
+   if(!/\\bKJV\\b/i.test(text)&&!el.querySelector('cite')?.textContent.match(/\\bKJV\\b/i))return;
+   if(el.classList.contains('hero-verse')){
+     const b=el.querySelector('b'),ref=b?.textContent||'',verse=text.replace(ref,'').trim();
+     el.classList.add('kjv-bilingual','notranslate');el.setAttribute('translate','no');el.dataset.kjvSource='1';
+     el.innerHTML=`<span class="kjv-source" data-kjv-text="${escapeHtml(verse)}">${escapeHtml(verse)} <b>${escapeHtml(ref)}</b></span><span class="kjv-selected-wrap" hidden><small class="kjv-selected-label"></small><span class="kjv-selected"></span></span>`;
+     return
+   }
+   const cite=el.querySelector('cite'),ref=cite?.textContent||'',verse=text.replace(ref,'').trim();
+   el.classList.add('kjv-bilingual','notranslate');el.setAttribute('translate','no');el.dataset.kjvSource='1';
+   el.innerHTML=`<span class="kjv-source" data-kjv-text="${escapeHtml(verse)}">${escapeHtml(verse)}${ref?` <cite>${escapeHtml(ref)}</cite>`:''}</span><span class="kjv-selected-wrap" hidden><small class="kjv-selected-label"></small><span class="kjv-selected"></span></span>`
+ });
+}
+async function applyInterfaceLanguage(lang){document.documentElement.lang=lang==='en'?'en':lang;await refreshTranslations(lang);await translateStaticKJV(lang);await translateInterface(lang)}
 async function refreshTranslations(lang){const name=LANG[lang];['day','night','motto','reader'].forEach(k=>{const e=$(`#${k}-lang`);if(e)e.textContent=lang==='en'?'English':`${name} · translated from KJV`});await Promise.all([translateInto('#day-en','#day-tr',lang),translateInto('#night-en','#night-tr',lang),translateInto('#motto-en','#motto-tr',lang),renderReaderTranslation(lang)]);if(mode==='chapter')renderFullChapter(lang);renderHymns()}
 
 function getVerse(b,c,v){return clean((bible&&bible[`${b} ${c}:${v}`])||'')}
@@ -134,7 +180,7 @@ async function renderDevotionals(){
   const list=devotionalsFor(devotionalDate),event=eventFor(devotionalDate),lang=$('#site-language')?.value||'en';
   $('#devotional-date').textContent=dateLabel(devotionalDate);
   $('#devotional-calendar-note').textContent=event?`${event.name} · devotionals emphasize ${event.theme}`:'Morning, evening and discipleship readings';
-  $('#daily-devotionals').innerHTML=list.map((d,i)=>`<div class="devotional-bilingual"><div class="devotional-english notranslate" translate="no">${devotionalCard(d,i,devotionalDate)}</div><div class="devotional-selected-language" data-devotional-translation="${i}">${lang==='en'?'':`<article class="devotional-translation loading"><p>Translating devotional…</p></article>`}</div></div>`).join('');
+  $('#daily-devotionals').innerHTML=list.map((d,i)=>`<div class="devotional-bilingual"><div class="devotional-english">${devotionalCard(d,i,devotionalDate)}</div><div class="devotional-selected-language" data-devotional-translation="${i}">${lang==='en'?'':`<article class="devotional-translation loading"><p>Translating devotional…</p></article>`}</div></div>`).join('');
   bindDevotionalActions(list);
   $('#next-devotional-day').disabled=dateLabel(devotionalDate)===dateLabel(new Date());
   if(lang!=='en'){
@@ -272,7 +318,7 @@ function clearLegacyPageTranslation(){
 async function init(){
   clearLegacyPageTranslation();
   // Build each feature independently so one broken optional module cannot disable the rest.
-  try{buildStatic()}catch(e){console.error('buildStatic',e)}
+  try{buildStatic();prepareStaticKJV()}catch(e){console.error('buildStatic',e)}
   try{if(today.event===EVENTS.atonement)$('#daily-mount')?.insertAdjacentHTML('afterbegin',feastFeature())}catch(e){console.error('feast',e)}
   try{initPrayerReader()}catch(e){console.error('prayer reader',e)}
   try{route()}catch(e){console.error('route',e)}
@@ -298,7 +344,7 @@ async function init(){
 
   try{events()}catch(e){console.error('events',e)}
   try{initHymnSearch();loadPublicDomainHymnCatalog()}catch(e){console.error('hymns',e)}
-  try{const sel=$('#site-language');localStorage.removeItem('lots-language');if(sel){sel.value='en';await refreshTranslations('en')}}catch(e){console.error('language reset',e)}
+  try{const sel=$('#site-language');localStorage.removeItem('lots-language');if(sel){sel.value='en';await refreshTranslations('en');await translateStaticKJV('en')}}catch(e){console.error('language reset',e)}
   try{initDevotionals()}catch(e){console.error('devotionals',e)}
   try{initFinance()}catch(e){console.error('finance',e)}
   try{initTodos()}catch(e){console.error('todos',e)}
