@@ -73,11 +73,11 @@ async function translateStaticKJV(lang){
  }
 }
 function prepareStaticKJV(){
- const candidates=[...document.querySelectorAll('blockquote,.hero-verse,.banner p')].filter(el=>el.matches('blockquote,.hero-verse')||/^[“\"]/u.test(el.textContent.trim()));
+ const candidates=[...document.querySelectorAll('blockquote,.hero-verse,.banner p')];
  candidates.forEach(el=>{
    if(el.closest('.kjv-bilingual,.verse-pair,#single-reading,#chapter-reading,.devotional-bilingual'))return;
    const text=el.textContent.trim();
-   if(!/\bKJV\b/i.test(text)&&!el.querySelector('cite')?.textContent.match(/\bKJV\b/i))return;
+   if(!/\\bKJV\\b/i.test(text)&&!el.querySelector('cite')?.textContent.match(/\\bKJV\\b/i))return;
    if(el.classList.contains('hero-verse')){
      const b=el.querySelector('b'),ref=b?.textContent||'',verse=text.replace(ref,'').trim();
      el.classList.add('kjv-bilingual','notranslate');el.setAttribute('translate','no');el.dataset.kjvSource='1';
