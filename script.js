@@ -90,7 +90,7 @@ function prepareStaticKJV(){
  });
 }
 async function translateCommandments(lang){
- const cards=$('.commandment-card');
+ const cards=document.querySelectorAll('.commandment-card');
  for(const card of cards){
   const i=Number(card.dataset.commandment),x=COMMANDMENTS[i],box=card.querySelector('.commandment-translation');
   if(!x||!box)continue;
