@@ -90,7 +90,7 @@ function prepareStaticKJV(){
  });
 }
 async function applyInterfaceLanguage(lang){document.documentElement.lang=lang==='en'?'en':lang;await refreshTranslations(lang);await translateStaticKJV(lang);await translateInterface(lang)}
-async function refreshTranslations(lang){const name=LANG[lang];['day','night','motto','reader'].forEach(k=>{const e=$(`#${k}-lang`);if(e)e.textContent=lang==='en'?'English':`${name} · translated from KJV`});await Promise.all([translateInto('#day-en','#day-tr',lang),translateInto('#night-en','#night-tr',lang),translateInto('#motto-en','#motto-tr',lang),renderReaderTranslation(lang)]);if(mode==='chapter')renderFullChapter(lang);renderHymns()}
+async function refreshTranslations(lang){const name=LANG[lang];['day','night','motto','reader'].forEach(k=>{const e=$(`#${k}-lang`);if(e)e.textContent=lang==='en'?'English':`${name} · translated from KJV`});await Promise.all([translateInto('#day-en','#day-tr',lang),translateInto('#night-en','#night-tr',lang),translateInto('#motto-en','#motto-tr',lang),renderReaderTranslation(lang)]);if(mode==='chapter')await renderFullChapter(lang);renderHymns();if(typeof renderDevotionals==='function')await renderDevotionals()}
 
 function getVerse(b,c,v){return clean((bible&&bible[`${b} ${c}:${v}`])||'')}
 function verseCount(b,c){let n=0;while(n<200&&getVerse(b,c,n+1))n++;return n}
