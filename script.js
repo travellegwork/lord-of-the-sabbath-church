@@ -69,7 +69,7 @@ async function translateStaticKJV(lang){
    if(lang==='en'){out.hidden=true;out.textContent='';if(refOut){refOut.hidden=true;refOut.textContent=''}continue}
    out.hidden=false;out.textContent='Translating the English KJV…';
    const tr=await translate(source.dataset.kjvText||source.textContent,lang);
-   out.textContent=tr&&!tr.startsWith('Translation is temporarily unavailable')?tr:'Translation is temporarily unavailable. The English KJV remains above.';if(refOut){const ref=source.dataset.kjvRef||'';refOut.hidden=!ref;refOut.textContent=ref?await translate(ref,lang):''}
+   out.textContent=tr&&!tr.startsWith('Translation is temporarily unavailable')?tr:'Translation is temporarily unavailable. The English KJV remains above.';if(refOut){const ref=source.dataset.kjvRef||'';refOut.hidden=!ref;if(ref){const cleanRef=ref.replace(/\s+KJV\s*$/i,'');refOut.textContent=(await translate(cleanRef,lang))+' · translated from English KJV'}else refOut.textContent=''}
  }
 }
 function prepareStaticKJV(){
@@ -96,14 +96,14 @@ async function translateCommandments(lang){
   if(!x||!box)continue;
   if(lang==='en'){box.hidden=true;continue}
   box.hidden=false;
-  const [title,verse,ref]=await Promise.all([translate(x[1],lang),translate(x[2],lang),translate(x[3]+' KJV',lang)]);
+  const [title,verse,ref]=await Promise.all([translate(x[1],lang),translate(x[2],lang),translate(x[3],lang)]);
   box.querySelector('h3').textContent=title;
   box.querySelector('blockquote').textContent='“'+verse+'”';
-  box.querySelector('cite').textContent=ref;
+  box.querySelector('cite').textContent=ref+' · translated from English KJV';
  }
 }
 async function applyInterfaceLanguage(lang){document.documentElement.lang=lang==='en'?'en':lang;await refreshTranslations(lang);await translateStaticKJV(lang);await translateCommandments(lang);await translateInterface(lang)}
-async function refreshTranslations(lang){const name=LANG[lang];['day','night','motto','reader'].forEach(k=>{const e=$(`#${k}-lang`);if(e)e.textContent=lang==='en'?'English':`${name} · translated from KJV`});await Promise.all([translateInto('#day-en','#day-tr',lang),translateInto('#night-en','#night-tr',lang),translateInto('#motto-en','#motto-tr',lang),renderReaderTranslation(lang)]);if(mode==='chapter')await renderFullChapter(lang);renderHymns();if(typeof renderDevotionals==='function')await renderDevotionals()}
+async function refreshTranslations(lang){const name=LANG[lang];['day','night','motto','reader'].forEach(k=>{const e=$(`#${k}-lang`);if(e)e.textContent=lang==='en'?'English':`${name} · translated from KJV`});await Promise.all([translateInto('#day-en','#day-tr',lang),translateInto('#night-en','#night-tr',lang),translateInto('#motto-en','#motto-tr',lang),renderReaderTranslation(lang)]);if(lang!=='en'){for(const k of ['day','night']){const src=$(`#${k}-ref`),panel=$(`#${k}-tr`)?.closest('article');if(src&&panel){let r=panel.querySelector('.translated-scripture-ref');if(!r){r=document.createElement('cite');r.className='translated-scripture-ref';panel.append(r)}r.textContent=(await translate(src.textContent.replace(/\s+KJV\s*$/i,''),lang))+' · translated from English KJV'}}const rr=$('#reader-tr-ref');if(rr)rr.textContent=(await translate(refText(),lang))+' · translated from English KJV'}if(mode==='chapter')await renderFullChapter(lang);renderHymns();if(typeof renderDevotionals==='function')await renderDevotionals()}
 
 function getVerse(b,c,v){return clean((bible&&bible[`${b} ${c}:${v}`])||'')}
 function verseCount(b,c){let n=0;while(n<200&&getVerse(b,c,n+1))n++;return n}
