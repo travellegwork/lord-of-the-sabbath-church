@@ -63,13 +63,13 @@ async function translateInterface(lang){
 async function translateStaticKJV(lang){
  const blocks=$$('.kjv-bilingual[data-kjv-source]');
  for(const box of blocks){
-   const source=box.querySelector('.kjv-source'),out=box.querySelector('.kjv-selected'),label=box.querySelector('.kjv-selected-label');
+   const source=box.querySelector('.kjv-source'),out=box.querySelector('.kjv-selected'),label=box.querySelector('.kjv-selected-label'),refOut=box.querySelector('.kjv-selected-ref');
    if(!source||!out)continue;
    if(label)label.textContent=lang==='en'?'English KJV shown above':`${LANG[lang]||lang} · translated directly from the English KJV`;
-   if(lang==='en'){out.hidden=true;out.textContent='';continue}
+   if(lang==='en'){out.hidden=true;out.textContent='';if(refOut){refOut.hidden=true;refOut.textContent=''}continue}
    out.hidden=false;out.textContent='Translating the English KJV…';
    const tr=await translate(source.dataset.kjvText||source.textContent,lang);
-   out.textContent=tr&&!tr.startsWith('Translation is temporarily unavailable')?tr:'Translation is temporarily unavailable. The English KJV remains above.'
+   out.textContent=tr&&!tr.startsWith('Translation is temporarily unavailable')?tr:'Translation is temporarily unavailable. The English KJV remains above.';if(refOut){const ref=source.dataset.kjvRef||'';refOut.hidden=!ref;refOut.textContent=ref?await translate(ref,lang):''}
  }
 }
 function prepareStaticKJV(){
@@ -81,15 +81,28 @@ function prepareStaticKJV(){
    if(el.classList.contains('hero-verse')){
      const b=el.querySelector('b'),ref=b?.textContent||'',verse=text.replace(ref,'').trim();
      el.classList.add('kjv-bilingual','notranslate');el.setAttribute('translate','no');el.dataset.kjvSource='1';
-     el.innerHTML=`<span class="kjv-source" data-kjv-text="${escapeHtml(verse)}">${escapeHtml(verse)} <b>${escapeHtml(ref)}</b></span><span class="kjv-selected-wrap" hidden><small class="kjv-selected-label"></small><span class="kjv-selected"></span></span>`;
+     el.innerHTML=`<span class="kjv-source" data-kjv-text="${escapeHtml(verse)}" data-kjv-ref="${escapeHtml(ref)}">${escapeHtml(verse)} <b>${escapeHtml(ref)}</b></span><span class="kjv-selected-wrap" hidden><small class="kjv-selected-label"></small><span class="kjv-selected"></span><cite class="kjv-selected-ref" hidden></cite></span>`;
      return
    }
    const cite=el.querySelector('cite'),ref=cite?.textContent||'',verse=text.replace(ref,'').trim();
    el.classList.add('kjv-bilingual','notranslate');el.setAttribute('translate','no');el.dataset.kjvSource='1';
-   el.innerHTML=`<span class="kjv-source" data-kjv-text="${escapeHtml(verse)}">${escapeHtml(verse)}${ref?` <cite>${escapeHtml(ref)}</cite>`:''}</span><span class="kjv-selected-wrap" hidden><small class="kjv-selected-label"></small><span class="kjv-selected"></span></span>`
+   el.innerHTML=`<span class="kjv-source" data-kjv-text="${escapeHtml(verse)}" data-kjv-ref="${escapeHtml(ref)}">${escapeHtml(verse)}${ref?` <cite>${escapeHtml(ref)}</cite>`:''}</span><span class="kjv-selected-wrap" hidden><small class="kjv-selected-label"></small><span class="kjv-selected"></span><cite class="kjv-selected-ref" hidden></cite></span>`
  });
 }
-async function applyInterfaceLanguage(lang){document.documentElement.lang=lang==='en'?'en':lang;await refreshTranslations(lang);await translateStaticKJV(lang);await translateInterface(lang)}
+async function translateCommandments(lang){
+ const cards=$('.commandment-card');
+ for(const card of cards){
+  const i=Number(card.dataset.commandment),x=COMMANDMENTS[i],box=card.querySelector('.commandment-translation');
+  if(!x||!box)continue;
+  if(lang==='en'){box.hidden=true;continue}
+  box.hidden=false;
+  const [title,verse,ref]=await Promise.all([translate(x[1],lang),translate(x[2],lang),translate(x[3]+' KJV',lang)]);
+  box.querySelector('h3').textContent=title;
+  box.querySelector('blockquote').textContent='“'+verse+'”';
+  box.querySelector('cite').textContent=ref;
+ }
+}
+async function applyInterfaceLanguage(lang){document.documentElement.lang=lang==='en'?'en':lang;await refreshTranslations(lang);await translateStaticKJV(lang);await translateCommandments(lang);await translateInterface(lang)}
 async function refreshTranslations(lang){const name=LANG[lang];['day','night','motto','reader'].forEach(k=>{const e=$(`#${k}-lang`);if(e)e.textContent=lang==='en'?'English':`${name} · translated from KJV`});await Promise.all([translateInto('#day-en','#day-tr',lang),translateInto('#night-en','#night-tr',lang),translateInto('#motto-en','#motto-tr',lang),renderReaderTranslation(lang)]);if(mode==='chapter')await renderFullChapter(lang);renderHymns();if(typeof renderDevotionals==='function')await renderDevotionals()}
 
 function getVerse(b,c,v){return clean((bible&&bible[`${b} ${c}:${v}`])||'')}
@@ -136,7 +149,7 @@ function hymnScripture(ref){const m=ref.match(/^(.+?)\s(\d+):(\d+)(?:[–-](\d+)
 async function openHymn(title){const h=HYMNS.find(x=>x.title===title);if(!h)return;let modal=$('#hymn-modal');if(!modal){modal=document.createElement('div');modal.id='hymn-modal';modal.className='hymn-modal';document.body.append(modal)}const lang=$('#site-language').value,lyrics=lang==='en'?h.lyrics:await translate(h.lyrics,lang),passage=hymnScripture(h.ref),translatedPassage=lang==='en'?passage:await translate(passage,lang);modal.innerHTML=`<article><button class="hymn-close" aria-label="Close hymn">×</button><p class="eyebrow">Hymn and Spiritual Song · Verified Public Domain</p><h1>${h.title}</h1><section class="hymn-full-scripture"><button class="scripture-link" type="button">${h.ref} KJV</button><blockquote class="notranslate" translate="no">“${escapeHtml(passage)}”</blockquote>${lang==='en'?'':`<blockquote>“${escapeHtml(translatedPassage)}”</blockquote>`}</section><div class="hymn-columns"><pre class="notranslate" translate="no">${escapeHtml(h.lyrics)}</pre>${lang==='en'?'':`<pre>${escapeHtml(lyrics)}</pre>`}</div><p class="translation-disclaimer">${lang==='en'?'Complete verified public-domain English lyrics.':`${LANG[lang]} is an automated translation of the English hymn shown beside it.`}</p></article>`;modal.classList.add('open');document.body.classList.add('modal-open');modal.querySelector('.hymn-close').onclick=closeHymn;modal.querySelector('.scripture-link').onclick=()=>{closeHymn();openDevotionalScripture(h.ref)};modal.onclick=e=>{if(e.target===modal)closeHymn()}}
 function closeHymn(){$('#hymn-modal')?.classList.remove('open');document.body.classList.remove('modal-open')}
 function route(){const id=location.hash.slice(1)||'home',target=document.getElementById(id);const daily=id==='day-section'||id==='night-section';const page=daily?$('#home'):(target?.classList.contains('page')?target:$('#home'));document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p===page));document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('active',a.hash===`#${page.id}`));document.title=`${daily?(id==='day-section'?'Verse of the Day':'Verse of the Night'):page.dataset.title} | Lord of the Sabbath Church`;$('#nav').classList.remove('open');if(daily){const go=()=>document.getElementById(id)?.scrollIntoView({block:'start',behavior:'auto'});requestAnimationFrame(()=>requestAnimationFrame(go));setTimeout(go,100)}else window.scrollTo(0,0)}
-function buildStatic(){today=dailyPair();$('#daily-mount').innerHTML=soapMarkup('Day','Verse of the Day',today.day)+soapMarkup('Night','Verse of the Night',today.night);$('#calendar-title').textContent=today.event?today.event.name:'Daily KJV meditation';$('#calendar-note').textContent=today.event?`Today’s verses, SOAP guidance and hymns emphasize ${today.event.theme}. Day/Night meditation changes at the user's local sunrise and sunset; biblical observances are identified from the biblical calendar.`:'Verse of the Day begins at local sunrise. Verse of the Night begins at local sunset.';$('#commandments-list').innerHTML=COMMANDMENTS.map(x=>`<article><b>${x[0]}</b><h2>${x[1]}</h2><blockquote>“${x[2]}”</blockquote><cite>${x[3]} KJV</cite></article>`).join('');$('#feast-list').innerHTML=FEASTS.map((x,i)=>`<article><b>0${i+1}</b><h2>${x[0]}</h2><p>${x[1]}</p><cite>${x[2]}</cite></article>`).join('');['day','night'].forEach(k=>{const ref=today[k];$(`#${k}-en`).textContent='Loading KJV Scripture…';document.querySelector(`form[data-soap="${k}"] .email-soap`).addEventListener('click',e=>emailSoap(e.target.form));document.querySelector(`form[data-soap="${k}"] .save-account`).addEventListener('click',e=>{e.target.form.querySelector('.status').textContent='Secure account subscriptions require the payment gateway to be connected. Your writing remains safely in this browser for this session.'});preserveSoap(document.querySelector(`form[data-soap="${k}"]`))});renderHymns()}
+function buildStatic(){today=dailyPair();$('#daily-mount').innerHTML=soapMarkup('Day','Verse of the Day',today.day)+soapMarkup('Night','Verse of the Night',today.night);$('#calendar-title').textContent=today.event?today.event.name:'Daily KJV meditation';$('#calendar-note').textContent=today.event?`Today’s verses, SOAP guidance and hymns emphasize ${today.event.theme}. Day/Night meditation changes at the user's local sunrise and sunset; biblical observances are identified from the biblical calendar.`:'Verse of the Day begins at local sunrise. Verse of the Night begins at local sunset.';$('#commandments-list').innerHTML=COMMANDMENTS.map((x,i)=>`<article class="commandment-card" data-commandment="${i}"><b>${x[0]}</b><h2>${x[1]}</h2><div class="commandment-kjv notranslate" translate="no"><blockquote>“${x[2]}”</blockquote><cite>${x[3]} KJV</cite></div><div class="commandment-translation" hidden><h3></h3><blockquote></blockquote><cite></cite></div></article>`).join('');$('#feast-list').innerHTML=FEASTS.map((x,i)=>`<article><b>0${i+1}</b><h2>${x[0]}</h2><p>${x[1]}</p><cite>${x[2]}</cite></article>`).join('');['day','night'].forEach(k=>{const ref=today[k];$(`#${k}-en`).textContent='Loading KJV Scripture…';document.querySelector(`form[data-soap="${k}"] .email-soap`).addEventListener('click',e=>emailSoap(e.target.form));document.querySelector(`form[data-soap="${k}"] .save-account`).addEventListener('click',e=>{e.target.form.querySelector('.status').textContent='Secure account subscriptions require the payment gateway to be connected. Your writing remains safely in this browser for this session.'});preserveSoap(document.querySelector(`form[data-soap="${k}"]`))});renderHymns()}
 function parseRef(ref){const m=ref.match(/^(.+?) (\d+):(\d+)$/);return{book:m[1],chapter:+m[2],verse:+m[3]}}
 const FINANCE_KEY='lots-finance-v1',TODO_KEY='lots-todos-v1';
 let finance={income:[],expenses:[],strategies:[],taxRate:20,period:'Monthly',from:'',to:''},todos=[],todoFilter='Today';
