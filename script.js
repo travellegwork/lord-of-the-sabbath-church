@@ -260,7 +260,11 @@ function autoScrollDailyVerse(){
 }
 function clearLegacyPageTranslation(){
  try{
-   ['googtrans','googtransopt'].forEach(k=>{document.cookie=k+'=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';document.cookie=k+'=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain='+location.hostname});
+   ['googtrans','googtransopt'].forEach(k=>{
+     const domains=['',location.hostname,'.'+location.hostname];
+     domains.forEach(d=>{document.cookie=k+'=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/'+(d?';domain='+d:'')});
+   });
+   sessionStorage.removeItem('googtrans');
  }catch{}
  document.documentElement.lang='en';
 }
@@ -293,7 +297,7 @@ async function init(){
 
   try{events()}catch(e){console.error('events',e)}
   try{initHymnSearch();loadPublicDomainHymnCatalog()}catch(e){console.error('hymns',e)}
-  try{const savedLang=localStorage.getItem('lots-language')||'en',sel=$('#site-language');if(sel&&[...sel.options].some(o=>o.value===savedLang)){sel.value=savedLang;await refreshTranslations(savedLang)}}catch(e){console.error('language restore',e)}
+  try{const sel=$('#site-language');localStorage.removeItem('lots-language');if(sel){sel.value='en';await refreshTranslations('en')}}catch(e){console.error('language reset',e)}
   try{initDevotionals()}catch(e){console.error('devotionals',e)}
   try{initFinance()}catch(e){console.error('finance',e)}
   try{initTodos()}catch(e){console.error('todos',e)}
