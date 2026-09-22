@@ -258,7 +258,14 @@ function autoScrollDailyVerse(){
     }catch{}
   },()=>{}, {timeout:3500,maximumAge:21600000});
 }
+function clearLegacyPageTranslation(){
+ try{
+   ['googtrans','googtransopt'].forEach(k=>{document.cookie=k+'=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';document.cookie=k+'=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain='+location.hostname});
+ }catch{}
+ document.documentElement.lang='en';
+}
 async function init(){
+  clearLegacyPageTranslation();
   // Build each feature independently so one broken optional module cannot disable the rest.
   try{buildStatic()}catch(e){console.error('buildStatic',e)}
   try{if(today.event===EVENTS.atonement)$('#daily-mount')?.insertAdjacentHTML('afterbegin',feastFeature())}catch(e){console.error('feast',e)}
@@ -292,6 +299,6 @@ async function init(){
   try{initTodos()}catch(e){console.error('todos',e)}
   try{loadPrivateData()}catch(e){console.error('private data',e)}
   window.addEventListener('keydown',e=>{if(e.key==='Escape')try{closeHymn()}catch{}});
-  setTimeout(()=>{const combo=$('.goog-te-combo');if(combo)combo.setAttribute('aria-label','Google website translation')},2500);
+  
 }
 init();
