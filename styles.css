@@ -94,3 +94,12 @@
   blockquote.kjv-bilingual{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
   blockquote.kjv-bilingual .kjv-selected-wrap{margin-top:0;padding-top:0;padding-left:1.5rem;border-top:0;border-left:1px solid rgba(128,128,128,.28)}
 }
+
+/* Keep the hero KJV pair clear of the hero buttons on mobile. */
+@media(max-width:760px){
+  .hero{padding-bottom:18rem!important}
+  .hero-verse.kjv-bilingual{bottom:1.5rem!important;left:1.2rem!important;right:1.2rem!important;max-width:none!important}
+  .hero-verse.kjv-bilingual .kjv-source,
+  .hero-verse.kjv-bilingual .kjv-selected-wrap{position:static!important;display:block!important;width:100%!important}
+  .hero-verse.kjv-bilingual .kjv-selected-wrap{margin-top:.85rem!important;padding-top:.85rem!important;padding-left:0!important;border-left:0!important;border-top:1px solid rgba(255,255,255,.22)!important}
+}
