@@ -103,3 +103,7 @@
   .hero-verse.kjv-bilingual .kjv-selected-wrap{position:static!important;display:block!important;width:100%!important}
   .hero-verse.kjv-bilingual .kjv-selected-wrap{margin-top:.85rem!important;padding-top:.85rem!important;padding-left:0!important;border-left:0!important;border-top:1px solid rgba(255,255,255,.22)!important}
 }
+
+.commandment-translation{margin-top:1rem;padding-top:1rem;border-top:1px solid var(--line)}
+.commandment-translation h3{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.commandment-translation cite,.kjv-selected-ref{display:block;margin-top:.65rem;font-style:normal;font-weight:700}
