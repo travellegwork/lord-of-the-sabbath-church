@@ -77,7 +77,7 @@ function prepareStaticKJV(){
  candidates.forEach(el=>{
    if(el.closest('.kjv-bilingual,.verse-pair,#single-reading,#chapter-reading,.devotional-bilingual'))return;
    const text=el.textContent.trim();
-   if(!/\\bKJV\\b/i.test(text)&&!el.querySelector('cite')?.textContent.match(/\\bKJV\\b/i))return;
+   if(!/\bKJV\b/i.test(text)&&!el.querySelector('cite')?.textContent.match(/\bKJV\b/i))return;
    if(el.classList.contains('hero-verse')){
      const b=el.querySelector('b'),ref=b?.textContent||'',verse=text.replace(ref,'').trim();
      el.classList.add('kjv-bilingual','notranslate');el.setAttribute('translate','no');el.dataset.kjvSource='1';
@@ -89,7 +89,7 @@ function prepareStaticKJV(){
    el.innerHTML=`<span class="kjv-source" data-kjv-text="${escapeHtml(verse)}">${escapeHtml(verse)}${ref?` <cite>${escapeHtml(ref)}</cite>`:''}</span><span class="kjv-selected-wrap" hidden><small class="kjv-selected-label"></small><span class="kjv-selected"></span></span>`
  });
 }
-async function applyInterfaceLanguage(lang){document.documentElement.lang=lang==='en'?'en':lang;await refreshTranslations(lang);await translateStaticKJV(lang);await translateInterface(lang);const commandments=$('#commandments');if(commandments)await translateInterface(lang)}
+async function applyInterfaceLanguage(lang){document.documentElement.lang=lang==='en'?'en':lang;await refreshTranslations(lang);await translateStaticKJV(lang);await translateInterface(lang)}
 async function refreshTranslations(lang){const name=LANG[lang];['day','night','motto','reader'].forEach(k=>{const e=$(`#${k}-lang`);if(e)e.textContent=lang==='en'?'English':`${name} · translated from KJV`});await Promise.all([translateInto('#day-en','#day-tr',lang),translateInto('#night-en','#night-tr',lang),translateInto('#motto-en','#motto-tr',lang),renderReaderTranslation(lang)]);if(mode==='chapter')await renderFullChapter(lang);renderHymns();if(typeof renderDevotionals==='function')await renderDevotionals()}
 
 function getVerse(b,c,v){return clean((bible&&bible[`${b} ${c}:${v}`])||'')}
