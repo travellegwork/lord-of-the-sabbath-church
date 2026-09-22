@@ -10,6 +10,19 @@
   <link rel="stylesheet" href="hymn-search.css?v=20260921-8">
   <link rel="stylesheet" href="devotionals.css?v=20260922-8">
 </head>
+<script>
+(function(){
+  try{
+    ['googtrans','googtransopt'].forEach(function(k){
+      ['',location.hostname,'.'+location.hostname].forEach(function(d){
+        document.cookie=k+'=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/'+(d?';domain='+d:'');
+      });
+    });
+    localStorage.removeItem('lots-language');
+  }catch(e){}
+  document.documentElement.lang='en';
+})();
+</script>
 <body>
 <a class="skip" href="#main">Skip to main content</a>
 <header class="topbar">
@@ -95,5 +108,5 @@
   });
 })();
 </script>
-<script src="script.js?v=20260922-22"></script>
+<script src="script.js?v=20260922-23"></script>
 </body></html>
