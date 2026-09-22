@@ -50,15 +50,15 @@ async function translateInterface(lang){
    return NodeFilter.FILTER_ACCEPT
  }});
  let node;while(node=walker.nextNode()){if(!ORIGINAL_TEXT.has(node))ORIGINAL_TEXT.set(node,node.nodeValue);nodes.push(node)}
- $$('input[placeholder],textarea[placeholder]').forEach(e=>{if(!ORIGINAL_PLACEHOLDER.has(e))ORIGINAL_PLACEHOLDER.set(e,e.placeholder);attrs.push(e)});
+ $('[placeholder],[title],[aria-label]').forEach(e=>{if(e.closest('.notranslate,.kjv-bilingual'))return;if(e.hasAttribute('placeholder')){const k='placeholder';if(!e.dataset.originalPlaceholder)e.dataset.originalPlaceholder=e.getAttribute(k)||'';attrs.push([e,k,e.dataset.originalPlaceholder])}if(e.hasAttribute('title')){const k='title';if(!e.dataset.originalTitle)e.dataset.originalTitle=e.getAttribute(k)||'';attrs.push([e,k,e.dataset.originalTitle])}if(e.hasAttribute('aria-label')){const k='aria-label';if(!e.dataset.originalAriaLabel)e.dataset.originalAriaLabel=e.getAttribute(k)||'';attrs.push([e,k,e.dataset.originalAriaLabel])}});
  if(lang==='en'){
    nodes.forEach(n=>{const v=ORIGINAL_TEXT.get(n);if(v!==undefined)n.nodeValue=v});
-   attrs.forEach(e=>{const v=ORIGINAL_PLACEHOLDER.get(e);if(v!==undefined)e.placeholder=v});
+   attrs.forEach(([e,k,v])=>{if(v!==undefined)e.setAttribute(k,v)});
    return
  }
  const work=nodes.map(n=>async()=>{const original=ORIGINAL_TEXT.get(n),trim=original.trim();if(!trim)return;const tr=await translate(trim,lang);if(tr&&!tr.startsWith('Translation is temporarily unavailable'))n.nodeValue=original.match(/^\\s*/)[0]+tr+original.match(/\\s*$/)[0]});
  for(let i=0;i<work.length;i+=4)await Promise.all(work.slice(i,i+4).map(fn=>fn()));
- for(const e of attrs){const original=ORIGINAL_PLACEHOLDER.get(e),tr=await translate(original,lang);if(tr&&!tr.startsWith('Translation is temporarily unavailable'))e.placeholder=tr}
+ for(const [e,k,original] of attrs){const tr=await translate(original,lang);if(tr&&!tr.startsWith('Translation is temporarily unavailable'))e.setAttribute(k,tr)}
 }
 async function translateStaticKJV(lang){
  const blocks=$$('.kjv-bilingual[data-kjv-source]');
