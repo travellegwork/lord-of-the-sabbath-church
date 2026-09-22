@@ -84,3 +84,13 @@
 @media(max-width:760px){.voice-preview{width:100%}}
 
 .hymn-source-card{text-decoration:none;color:inherit}.hymn-source-card:hover,.hymn-source-card:focus-visible{transform:translateY(-2px)}
+
+/* Selected-language translation of every preserved English KJV quotation */
+.kjv-bilingual .kjv-source,.kjv-bilingual .kjv-selected-wrap{display:block}
+.kjv-bilingual .kjv-selected-wrap{margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(128,128,128,.28)}
+.kjv-bilingual .kjv-selected-label{display:block;margin-bottom:.45rem;font-family:Manrope,sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.kjv-bilingual .kjv-selected{display:block}
+@media(min-width:761px){
+  blockquote.kjv-bilingual{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+  blockquote.kjv-bilingual .kjv-selected-wrap{margin-top:0;padding-top:0;padding-left:1.5rem;border-top:0;border-left:1px solid rgba(128,128,128,.28)}
+}
