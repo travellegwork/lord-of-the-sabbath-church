@@ -306,6 +306,8 @@ function scrollToDailyVerse(target){
 }
 function autoScrollDailyVerse(){
   const hash=location.hash.slice(1);
+  // Respect an explicit daily-verse destination. Do not let startup sunrise/sunset routing overwrite it.
+  if(hash==='day-section'||hash==='night-section'){scrollToDailyVerse(hash);return;}
   const requestedPage=hash&&document.getElementById(hash);
   if(hash&&hash!=='home'&&requestedPage?.classList.contains('page'))return;
   if('scrollRestoration' in history)history.scrollRestoration='manual';
