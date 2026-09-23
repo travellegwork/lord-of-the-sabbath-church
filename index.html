@@ -96,8 +96,7 @@
     document.querySelectorAll('.mobile-nav-panel a').forEach(function(a){a.addEventListener('click',function(){var d=a.closest('details');if(d)d.removeAttribute('open');setTimeout(function(){showPage(location.hash.slice(1)||'home')},0)})});
     var hash=location.hash.slice(1);
     if(hash && hash!=='home'){showPage(hash);return}
-    var h=new Date().getHours(),target=(h>=6&&h<18)?'day-section':'night-section';
-    history.replaceState(null,'','#'+target);showPage(target);
+    showPage('home');
     fetch('assets/kjv-1769.json?v=20260922-1',{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error();return r.json()}).then(function(db){
       ['day','night'].forEach(function(k){
         var cite=document.querySelector('#'+k+'-section cite'),out=document.getElementById(k+'-en');
@@ -110,5 +109,5 @@
   });
 })();
 </script>
-<script src="script.js?v=20260923-chordclick2"></script>
+<script src="script.js?v=20260924-localdaily1"></script>
 </body></html>
