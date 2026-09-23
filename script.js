@@ -305,30 +305,28 @@ function scrollToDailyVerse(target){
   setTimeout(go,2000);
 }
 function autoScrollDailyVerse(){
-  const hash=location.hash.slice(1);
-  const requestedPage=hash&&document.getElementById(hash);
-  if(hash&&hash!=='home'&&requestedPage?.classList.contains('page'))return;
   if('scrollRestoration' in history)history.scrollRestoration='manual';
   const now=new Date();
-  const fallback=()=>{const h=now.getHours();return h>=6&&h<18?'day-section':'night-section'};
-  const land=target=>{
-    history.replaceState(null,'','#'+target);
-    route();
-    const go=()=>document.getElementById(target)?.scrollIntoView({block:'start',behavior:'auto'});
-    go();requestAnimationFrame(()=>requestAnimationFrame(go));setTimeout(go,250);
+
+  // Choose Day/Night from the user's own device-local clock.
+  // 06:00–17:59 = Verse of the Day; 18:00–05:59 = Verse of the Night.
+  const target=(now.getHours()>=6&&now.getHours()<18)?'day-section':'night-section';
+
+  // Make the chosen daily section the actual landing destination.
+  history.replaceState(null,'','#'+target);
+  route();
+
+  // WebView can restore an old scroll position after first paint, so pin the
+  // selected section again while layout/fonts/content finish loading.
+  const land=()=>{
+    const el=document.getElementById(target);
+    if(!el)return;
+    const top=el.getBoundingClientRect().top+window.scrollY;
+    window.scrollTo({top:Math.max(0,top),left:0,behavior:'auto'});
   };
-  // Land immediately; refine to the user's actual local sunrise/sunset if location is permitted.
-  land(fallback());
-  if(!navigator.geolocation)return;
-  navigator.geolocation.getCurrentPosition(async pos=>{
-    try{
-      const {latitude,longitude}=pos.coords;
-      const date=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-      const r=await fetch(`https://api.sunrise-sunset.org/json?lat=${latitude}&lng=${longitude}&date=${date}&formatted=0`,{cache:'no-store'});
-      const d=await r.json(),sunrise=Date.parse(d?.results?.sunrise),sunset=Date.parse(d?.results?.sunset);
-      if(d?.status==='OK'&&!Number.isNaN(sunrise)&&!Number.isNaN(sunset))land(now.getTime()>=sunrise&&now.getTime()<sunset?'day-section':'night-section');
-    }catch{}
-  },()=>{}, {timeout:3500,maximumAge:21600000});
+  land();
+  requestAnimationFrame(()=>requestAnimationFrame(land));
+  [100,300,700,1500,2500].forEach(ms=>setTimeout(land,ms));
 }
 function clearLegacyPageTranslation(){
  try{
