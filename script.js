@@ -323,7 +323,10 @@ function autoScrollDailyVerse(){
     const el=document.getElementById(target);
     if(!el)return;
     const top=el.getBoundingClientRect().top+window.scrollY;
-    window.scrollTo({top:Math.max(0,top),left:0,behavior:'auto'});
+    // Land a little farther down the daily section so the Read full chapter
+    // button is visible immediately on mobile without changing the section layout.
+    const mobileNudge=window.innerWidth<=768?72:0;
+    window.scrollTo({top:Math.max(0,top+mobileNudge),left:0,behavior:'auto'});
   };
   land();
   requestAnimationFrame(()=>requestAnimationFrame(land));
