@@ -346,7 +346,7 @@ async function init(){
   clearLegacyPageTranslation();
   // Build each feature independently so one broken optional module cannot disable the rest.
   try{buildStatic();prepareStaticKJV()}catch(e){console.error('buildStatic',e)}
-  try{if(today.event===EVENTS.atonement)$('#daily-mount')?.insertAdjacentHTML('afterbegin',feastFeature())}catch(e){console.error('feast',e)}
+  try{if(today.event===EVENTS.atonement||today.event===EVENTS.tabernacles)$('#daily-mount')?.insertAdjacentHTML('afterbegin',feastFeature())}catch(e){console.error('feast',e)}
   try{initPrayerReader()}catch(e){console.error('prayer reader',e)}
   try{route()}catch(e){console.error('route',e)}
   try{autoScrollDailyVerse()}catch(e){console.error('daily landing',e)}
