@@ -40,6 +40,39 @@
 <section id="home" class="page active" data-title="Lord of the Sabbath Church">
   <section class="hero"><div class="hero-shade"></div><div class="hero-copy"><p class="eyebrow">Welcome to</p><h1>Lord of the<br><em>Sabbath</em> Church</h1><p>A place to read, study, meditate upon and obey the Word of God—exalting the Lord Jesus Christ in all things.</p><p class="actions"><a class="btn gold" href="#bible">Read the KJV Bible</a><a class="btn ghost" href="#salvation">Know the Way to Heaven</a></p></div><p class="hero-verse">“For the Son of man is Lord even of the sabbath day.” <b>Matthew 12:8 KJV</b></p></section>
   <section class="calendar-banner"><b id="calendar-title">Today in the biblical calendar</b><span id="calendar-note"></span></section>
+  <section id="tabernacles-home-feature" class="atonement-feature" hidden>
+    <div class="atonement-title">
+      <h2>FEAST OF TABERNACLES</h2>
+      <p class="eyebrow">A HOLY CONVOCATION</p>
+    </div>
+    <div class="atonement-content">
+      <article>
+        <h3>What the LORD commanded His people to do</h3>
+        <p>Leviticus 23:34–43 commands the LORD’s people to keep the Feast of Tabernacles seven days unto the LORD. The first day is an holy convocation. They were to rejoice before the LORD, dwell in booths, and teach their generations to remember how the LORD brought the children of Israel out of Egypt and made them to dwell in booths.</p>
+        <blockquote>“Ye shall rejoice before the LORD your God seven days.” <cite>Leviticus 23:40 KJV</cite></blockquote>
+        <p>It is a time of holy gathering, remembrance, thanksgiving and rejoicing before the LORD for His deliverance and provision.</p>
+      </article>
+      <article>
+        <h3>The shadow and the substance: the Lord Jesus Christ</h3>
+        <p>The dwelling pictured in the feast points our attention to the Lord Jesus Christ. John declares that the Word was made flesh and dwelt among us, revealing His glory, grace and truth.</p>
+        <blockquote>“And the Word was made flesh, and dwelt among us…” <cite>John 1:14 KJV</cite></blockquote>
+        <p>Scripture also looks forward to the ultimate hope of God dwelling with His redeemed people.</p>
+        <blockquote>“Behold, the tabernacle of God is with men, and he will dwell with them…” <cite>Revelation 21:3 KJV</cite></blockquote>
+      </article>
+    </div>
+    <div class="atonement-call"><h3>Rejoice before the LORD</h3><p>Gather in holy convocation. Remember His deliverance and provision. Rejoice, give thanks, read His Word, pray and worship, looking unto the Lord Jesus Christ.</p></div>
+  </section>
+  <script>
+  (function(){
+    var el=document.getElementById('tabernacles-home-feature'),p={};
+    if(!el)return;
+    try{
+      new Intl.DateTimeFormat('en-u-ca-hebrew',{month:'long',day:'numeric'}).formatToParts(new Date()).forEach(function(x){if(x.type==='month'||x.type==='day')p[x.type]=x.value});
+      var m=p.month,d=Number(p.day);
+      if((m==='Tishri'||m==='Tishrei')&&d>=15&&d<=21)el.hidden=false;
+    }catch(e){}
+  })();
+  </script>
   <div id="daily-mount"></div>
   <section class="motto"><p class="eyebrow">Permanent Motto Verse</p><h2>Joshua 1:8 KJV</h2><div class="parallel motto-parallel"><article><h3>English · KJV</h3><blockquote id="motto-en" class="notranslate" translate="no">“This book of the law shall not depart out of thy mouth; but thou shalt meditate therein day and night, that thou mayest observe to do according to all that is written therein: for then thou shalt make thy way prosperous, and then thou shalt have good success.”</blockquote></article><article><h3 id="motto-lang">Selected language</h3><blockquote id="motto-tr">Select a language above to read a translation of the exact English KJV.</blockquote></article></div></section>
   <section class="pillars"><article><b>01</b><h2>Christ First</h2><p>Jesus Christ is Lord, Saviour and the centre of every doctrine and devotion.</p></article><article><b>02</b><h2>The Word of God</h2><p>The Authorized King James Bible remains our English authority.</p></article><article><b>03</b><h2>Holy Time</h2><p>We remember the seventh-day Sabbath and the appointed Feasts of the LORD.</p></article></section>
