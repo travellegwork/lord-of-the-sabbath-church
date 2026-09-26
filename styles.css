@@ -125,3 +125,8 @@
 .calendar-banner .tabernacles-convocation{display:block;font-size:clamp(1.35rem,3vw,2rem);font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin:0 0 1.5rem}
 .calendar-banner .tabernacles-copy{display:block;max-width:1000px;margin:0 auto 1.25rem}
 @media(max-width:760px){.calendar-banner .tabernacles-feature-title{font-size:clamp(2.65rem,13vw,4.5rem);line-height:.94}.calendar-banner .tabernacles-convocation{font-size:1.2rem}}
+
+/* Shared Feast teaching banner */
+.feast-shadow-banner{max-width:1180px;margin:1.5rem auto;padding:clamp(1.4rem,3vw,2.4rem);background:#fff8dc;border:1px solid rgba(125,91,0,.28);border-radius:18px;box-shadow:0 10px 30px rgba(7,20,38,.08)}
+.feast-shadow-banner h3{font:700 clamp(1.5rem,3vw,2.35rem)/1.15 var(--serif);margin:0 0 1.25rem;text-align:center}.feast-shadow-banner p{max-width:1000px;margin:.9rem auto;line-height:1.75}.feast-shadow-banner strong{font-weight:700}
+#home-feast-shadow{padding:0 clamp(1rem,3vw,2rem)}
